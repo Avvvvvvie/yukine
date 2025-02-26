@@ -21,7 +21,7 @@ class GameView {
         playerHand.innerHTML = '';
         for(let card of steam.yukineClient.gamePlayer.hand.value.cards) {
             let cardElement = document.createElement('div');
-            cardElement.innerText = card.value + ' ' + card.suit;
+            cardElement.innerText = card.valueString + ' ' + card.suitString;
             cardElement.addEventListener('click', () => {
                 this.playCard(card);
             });
