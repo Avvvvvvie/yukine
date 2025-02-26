@@ -38,22 +38,30 @@ class PlayerServer extends Player {
         this.writeData(this.locations.name, this.name);
     }
     writeData(key, value) {
-        steam.lobby.setData(this.steamID + ':' + key, value);
+        steam.lobby.setData(this.steamID + Yukine.delimiters.player + key, value);
         if(!this.updates.has(key)) {
             this.updates.add(key);
             let updateString = "";
             for(let value of this.updates.values()) {
-                updateString += value + ",";
+                updateString += value + Yukine.delimiters.update.length;
             }
-            updateString = updateString.substring(0, updateString.length - 1);
-            steam.lobby.setData(this.steamID + ':' + 'updatefields', updateString);
-            steam.lobby.setData(this.steamID + ':' + 'update', 'true');
+            updateString = updateString.substring(0, updateString.length - Yukine.delimiters.update.length);
+            steam.lobby.setData(this.steamID + Yukine.delimiters.player + 'updatefields', updateString);
+            steam.lobby.setData(this.steamID + Yukine.delimiters.player + 'update', 'true');
         }
+    }
+    setEligible(value) {
+        this.eligible = value;
+        this.writeEligible();
+    }
+    setLost(value) {
+        this.lost = value;
+        this.writeLost();
     }
     clearUpdates() {
         this.updates.clear();
-        steam.lobby.setData(this.steamID + ':' + 'updatefields', '');
-        steam.lobby.setData(this.steamID + ':' + 'update', 'false');
+        steam.lobby.setData(this.steamID + Yukine.delimiters.player + 'updatefields', '');
+        steam.lobby.setData(this.steamID + Yukine.delimiters.player + 'update', 'false');
     }
     lastPlayedCard() {
         return this.played.cards[this.played.cards.length - 1];
@@ -63,4 +71,23 @@ class PlayerServer extends Player {
         this.played.addCard(card);
     }
 
+    readAction() {
+        let actiondata = this.readUserData('action');
+        return actiondata?.split(Yukine.delimiters.action);
+    }
+    clearAction() {
+        this.writeData('action', '');
+    }
+    useTry() {
+        this.tries--;
+        this.writeTries();
+    }
+    giveCard(card) {
+        this.hand.addCard(card);
+        this.writeHand();
+    }
+    clearPlayed() {
+        this.played.clear();
+        this.writePlayed();
+    }
 }

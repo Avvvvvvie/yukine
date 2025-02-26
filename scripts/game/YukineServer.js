@@ -7,23 +7,62 @@ class YukineServer extends Yukine {
     winner = null;
     constructor(players) {
         super();
+        this.updates = new Set();
+
         this.players = players.map(player => new PlayerServer(player.accountId));
         this.deck.shuffle();
         this.distributeCards(8);
-        this.updates = new Set();
 
         this.writeCurrentPlayer();
         this.writeDeck();
         this.writeDiscardPile();
         this.writeRound();
         this.writeSaveableLoosers();
+
+        this.serverLoop();
     }
+
+    serverLoop() {
+        setTimeout(() => {
+            this.serverLoop();
+            this.checkPlayerActions();
+        }, 3000);
+    }
+
+    checkPlayerActions() {
+        for(let player of this.players) {
+            let actiondata = player.readAction();
+            if(actiondata) {
+                let action = actiondata[0];
+                let value = actiondata[1];
+                switch (action) {
+                    case 'playCard':
+                        if(this.getTurn().steamID !== player.steamID) break;
+                        let sentCard = Card.fromString(value);
+                        let playerCard = player.hand.cards.find(card => card.value === sentCard.value && card.suit === sentCard.suit);
+                        if(playerCard === undefined) break;
+                        player.playCard(playerCard);
+                        this.nextTurn();
+                        break;
+                    case 'try':
+                        this.useTry(player);
+                        break;
+                    case 'canceltry':
+                        this.cancelTry(player);
+                        break;
+                }
+                player.clearAction();
+            }
+        }
+    }
+
     distributeCards(amount) {
         for(let player of this.players) {
             for(let i = 0; i < amount; i++) {
-                this.giveCardToPlayer(player);
+                player.giveCard(this.deck.drawCard());
             }
         }
+        this.writeDeck();
     }
     writeCurrentPlayer() {
         this.writeData(this.locations.currentPlayer, this.currentPlayer.toString());
@@ -43,6 +82,18 @@ class YukineServer extends Yukine {
     writeWinner() {
         this.writeData(this.locations.winner, this.winner?.steamID.toString());
     }
+    setWinner(player) {
+        this.winner = player;
+        this.writeWinner();
+    }
+    setSaveableLoosers(value) {
+        this.saveableLoosers = value;
+        this.writeSaveableLoosers();
+    }
+    setRound(value) {
+        this.round = value;
+        this.writeRound();
+    }
     getTurn() {
         return this.players[this.currentPlayer];
     }
@@ -52,9 +103,9 @@ class YukineServer extends Yukine {
             this.updates.add(key);
             let updateString = "";
             for(let value of this.updates.values()) {
-                updateString += value + ",";
+                updateString += value + Yukine.delimiters.update;
             }
-            updateString = updateString.substring(0, updateString.length - 1);
+            updateString = updateString.substring(0, updateString.length - Yukine.delimiters.update.length);
             steam.lobby.setData('updatefields', updateString);
             steam.lobby.setData('update', 'true');
         }
@@ -66,28 +117,31 @@ class YukineServer extends Yukine {
             if(winner) {
                 for(let player of this.players) {
                     for(let card of player.played.cards) {
-                        winner.hand.addCard(card);
+                        winner.giveCard(card);
                     }
+                    player.clearPlayed();
                 }
             }
             this.findRoundLoosers();
             let totalWinner = this.findTotalWinner();
             if(totalWinner) {
-                this.winner = totalWinner;
+                this.setWinner(totalWinner)
                 return null;
             }
-            this.round++;
+            this.writeCurrentPlayer();
+            this.setRound(this.round + 1);
             this.markEligiblePlayers();
         }
     }
+
     markEligiblePlayers() {
         for(let player1 of this.players) {
             for(let player2 of this.players) {
                 if(player1 === player2) continue;
                 if(player2.eligible === true && player1.eligible === true) continue;
                 if(player1.lastPlayedCard().value + 1 > player2.lastPlayedCard().value && player1.lastPlayedCard().value - 1 < player2.lastPlayedCard().value) {
-                    player1.eligible = true;
-                    player2.eligible = true;
+                    player1.setEligible(true);
+                    player2.setEligible(true);
                     break;
                 }
             }
@@ -97,14 +151,15 @@ class YukineServer extends Yukine {
         for(let player of this.players) {
             if(player.hand.size() === 0) {
                 if(this.saveableLoosers > 0) {
-                    this.saveableLoosers--;
+                    this.setSaveableLoosers(this.saveableLoosers - 1);
                     this.giveCardToPlayer(player);
                 } else {
-                    player.lost = true;
+                    player.setLost(true);
                 }
             }
         }
     }
+
     findTotalWinner() {
         let notLostCount = 0;
         let winner = null;
@@ -118,10 +173,6 @@ class YukineServer extends Yukine {
             return winner;
         }
     }
-    giveCardToPlayer(player) {
-        player.hand.addCard(this.deck.drawCard());
-        player.writeHand();
-    }
     findRoundWinner() {
         let sortedPlayers = this.players.filter(player => player.eligible).sort((a, b) => a.lastPlayedCard().value - b.lastPlayedCard().value);
         // todo: check if everyone has the same card
@@ -132,8 +183,12 @@ class YukineServer extends Yukine {
         }
         return null;
     }
+    giveCardToPlayer(player) {
+        player.giveCard(this.deck.drawCard());
+        this.writeDeck();
+    }
     useTry(player) {
-        player.tries--;
+        player.useTry();
         this.giveCardToPlayer(player);
     }
     cancelTry(player) {

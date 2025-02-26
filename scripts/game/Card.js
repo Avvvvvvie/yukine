@@ -32,11 +32,11 @@ class Card {
         }
     }
     toString() {
-        return this.value + ':' + this.suit;
+        return this.value + Yukine.delimiters.card + this.suit;
     }
     static fromString(string) {
         if(string === '') return null;
-        let parts = string.split(':');
+        let parts = string.split(Yukine.delimiters.card);
         return new Card(parseInt(parts[0]), parseInt(parts[1]));
     }
 }

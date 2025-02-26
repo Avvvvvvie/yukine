@@ -22,7 +22,7 @@ class PlayerClient extends Player {
         this.hand.setValue(Pile.fromString(this.readUserData(this.locations.hand)));
     };
     readPlayed() {
-        this.played.setValue(Pile.fromString(this.readUserData(this.locations.played)?.split(",")));
+        this.played.setValue(Pile.fromString(this.readUserData(this.locations.played)?.split(Yukine.delimiters.pile)));
     }
     readTries() {
         this.tries.setValue(this.readUserData(this.locations.tries));
@@ -39,14 +39,11 @@ class PlayerClient extends Player {
     readName() {
         this.name.setValue(this.readUserData(this.locations.name));
     }
-    readUserData(key) {
-        return steam.lobby.getData(this.steamID + ':' + key);
-    }
     hasUpdate() {
         return steam.lobby.getData('update') === 'true';
     }
     update() {
-        let updateFields = this.readUserData('updatefields').split(',');
+        let updateFields = this.readUserData('updatefields').split(Yukine.delimiters.update);
         for(let field of updateFields) {
             this['read' + field]();
         }

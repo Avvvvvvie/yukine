@@ -23,6 +23,15 @@ class YukineClient extends Yukine {
         this.readRound();
         this.readSaveableLoosers();
         this.readWinner();
+
+        this.clientLoop();
+    }
+
+    clientLoop() {
+        setTimeout(() => {
+            this.clientLoop();
+            if(this.hasUpdate()) this.update();
+        }, 3000);
     }
 
     readPlayers() {
@@ -32,6 +41,7 @@ class YukineClient extends Yukine {
     }
     readCurrentPlayer() {
         this.currentPlayer.setValue(this.readData(this.locations.currentPlayer));
+        console.log("currentPlayer: " + this.currentPlayer.value);
     }
     readDeck() {
         this.deck.setValue(Pile.fromString(this.readData(this.locations.deck)));
@@ -41,6 +51,7 @@ class YukineClient extends Yukine {
     }
     readRound() {
         this.round.setValue(this.readData(this.locations.round));
+        console.log("round: " + this.round.value);
     }
     readSaveableLoosers() {
         this.saveableLoosers.setValue(this.readData(this.locations.saveableLoosers));
@@ -49,11 +60,11 @@ class YukineClient extends Yukine {
         this.winner.setValue(this.readData(this.locations.winner));
     }
 
-    sendUserData(key, value) {
-        steam.lobby.setData(key + ":" + steam.playerSteamID, value);
+    sendPlayerData(key, value) {
+        steam.lobby.setData(steam.playerSteamID + Yukine.delimiters.player + key, value);
     }
     sendAction(action, value) {
-        this.sendUserData('action', action + ':' + value);
+        this.sendPlayerData('action', action + Yukine.delimiters.action + value);
     }
     readData(key) {
         return steam.lobby.getData(key);
@@ -63,7 +74,7 @@ class YukineClient extends Yukine {
     }
 
     update() {
-        let updateFields = steam.lobby.getData('updatefields').split(',');
+        let updateFields = steam.lobby.getData('updatefields').split(Yukine.delimiters.update);
         for(let field of updateFields) {
             this['read' + field]();
         }
@@ -77,7 +88,7 @@ class YukineClient extends Yukine {
         this.sendAction('cancelTry', playerID);
     }
 
-    playCard(value, suit) {
-        this.sendAction('playCard', value + ':' + suit);
+    playCard(card) {
+        this.sendAction('playCard', card.toString());
     }
 }

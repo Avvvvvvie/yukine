@@ -11,4 +11,8 @@ class Player {
     constructor(steamID) {
         this.steamID = steamID.toString();
     }
+
+    readUserData(key) {
+        return steam.lobby.getData(this.steamID + ':' + key);
+    }
 }

@@ -21,14 +21,15 @@ class GameView {
         playerHand.innerHTML = '';
         for(let card of steam.yukineClient.gamePlayer.hand.value.cards) {
             let cardElement = document.createElement('div');
+            cardElement.classList.add('card');
+            cardElement.setAttribute('data-value', card.value);
+            cardElement.setAttribute('data-suit', card.suit);
             cardElement.innerText = card.valueString + ' ' + card.suitString;
             cardElement.addEventListener('click', () => {
-                this.playCard(card);
+                console.log('card clicked', card);
+                steam.yukineClient.playCard(card);
             });
             playerHand.appendChild(cardElement);
         }
-    }
-    playCard(card) {
-        console.log(card);
     }
 }

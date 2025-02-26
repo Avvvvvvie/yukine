@@ -14,6 +14,9 @@ class Pile {
     drawCard() {
         return this.cards.pop();
     }
+    clear() {
+        this.cards = [];
+    }
     static createDeck() {
         let deck = new Pile();
         for(let value = 1; value <= 13; value++) {
@@ -35,7 +38,7 @@ class Pile {
         if(string === undefined) return new Pile();
         if(string === '') return new Pile();
         let pile = new Pile();
-        let cards = string.split(',');
+        let cards = string.split(Yukine.delimiters.pile);
         for(let card of cards) {
             pile.addCard(Card.fromString(card));
         }
