@@ -1,7 +1,121 @@
 /** @type {import('steamworks.js')} */
 const { init, SteamCallback } = require('steamworks.js');
 
+class LobbyValue {
+    constructor(value) {
+        this.value = value;
+        this.listeners = [];
+    }
+    addListener(callback) {
+        this.listeners.push(callback);
+    }
+    setValue(value) {
+        let oldValue = this.value;
+        this.value = value;
+        for(let listener of this.listeners) {
+            listener(oldValue, value);
+        }
+    }
+}
+
 class Yukine {
+    locations = {
+        currentPlayer: "currentPlayer",
+        deck: "deck",
+        discardPile: "discardPile",
+        round: "round",
+        saveableLoosers: "saveableLoosers",
+        winner: "winner"
+    }
+    constructor() {
+        this.steamplayers = steam.lobby.getMembers();
+    }
+}
+class YukineClient extends Yukine {
+    constructor(props) {
+        super(props);
+        this.currentPlayer = new LobbyValue();
+        this.deck = new LobbyValue();
+        this.discardPile = new LobbyValue();
+        this.round = new LobbyValue();
+        this.saveableLoosers = new LobbyValue();
+        this.winner = new LobbyValue();
+        this.players = steam.lobby.getMembers().map(member => new PlayerClient(member.accountId));
+
+        for(let player of this.players) {
+            if(player.name.value === steam.playerName) {
+                this.gamePlayer = player;
+                break;
+            }
+        }
+
+        this.readPlayers();
+        this.readCurrentPlayer();
+        this.readDeck();
+        this.readDiscardPile();
+        this.readRound();
+        this.readSaveableLoosers();
+        this.readWinner();
+    }
+
+    readPlayers() {
+        for(let player of this.players) {
+            if(player.hasUpdate()) player.update();
+        }
+    }
+    readCurrentPlayer() {
+        this.currentPlayer.setValue(this.readData(this.locations.currentPlayer));
+    }
+    readDeck() {
+        this.deck.setValue(this.readData(this.locations.deck)?.split(","));
+    }
+    readDiscardPile() {
+        this.winner.setValue(this.readData(this.locations.winner)?.split(","));
+    }
+    readRound() {
+        this.round.setValue(this.readData(this.locations.round));
+    }
+    readSaveableLoosers() {
+        this.saveableLoosers.setValue(this.readData(this.locations.saveableLoosers));
+    }
+    readWinner() {
+        this.winner.setValue(this.readData(this.locations.winner));
+    }
+
+    sendUserData(key, value) {
+        steam.lobby.setData(key + ":" + steam.playerSteamID, value);
+    }
+    sendAction(action, value) {
+        this.sendUserData('action', action + ':' + value);
+    }
+    readData(key) {
+        return steam.lobby.getData(key);
+    }
+    hasUpdate() {
+        return steam.lobby.getData('update') === 'true';
+    }
+
+    update() {
+        let updateFields = steam.lobby.getData('updatefields').split(',');
+        for(let field of updateFields) {
+            this['read' + field]();
+        }
+    }
+
+    useTry() {
+        this.sendAction('useTry', '');
+    }
+
+    cancelTry(playerID) {
+        this.sendAction('cancelTry', playerID);
+    }
+
+    playCard(value, suit) {
+        this.sendAction('playCard', value + ':' + suit);
+    }
+}
+
+class YukineServer extends Yukine {
     currentPlayer = 0;
     deck = Pile.createDeck();
     discardPile = new Pile();
@@ -9,9 +123,17 @@ class Yukine {
     saveableLoosers = 1;
     winner = null;
     constructor(players) {
-        this.players = players;
+        super();
+        this.players = players.map(player => new PlayerServer(player.accountId));
         this.deck.shuffle();
         this.distributeCards(8);
+        this.updates = new Set();
+
+        this.writeCurrentPlayer();
+        this.writeDeck();
+        this.writeDiscardPile();
+        this.writeRound();
+        this.writeSaveableLoosers();
     }
     distributeCards(amount) {
         for(let player of this.players) {
@@ -20,8 +142,34 @@ class Yukine {
             }
         }
     }
+    writeCurrentPlayer() {
+        this.writeData(this.locations.currentPlayer, this.currentPlayer.toString());
+    }
+    writeDeck() {
+        this.writeData(this.locations.deck, this.deck.cards.join(","));
+    }
+    writeDiscardPile() {
+        this.writeData(this.locations.discardPile, this.discardPile.cards.join(","));
+    }
+    writeRound() {
+        this.writeData(this.locations.round, this.round.toString());
+    }
+    writeSaveableLoosers() {
+        this.writeData(this.locations.saveableLoosers, this.saveableLoosers.toString());
+    }
+    writeWinner() {
+        this.writeData(this.locations.winner, this.winner?.steamID.toString());
+    }
     getTurn() {
         return this.players[this.currentPlayer];
+    }
+    writeData(key, value) {
+        steam.lobby.setData(key, value);
+        if(!this.updates.has(key)) {
+            this.updates.add(key);
+            steam.lobby.setData('updatefields', this.updates.values().toString());
+            steam.lobby.setData('update', 'true');
+        }
     }
     nextTurn() {
         this.currentPlayer = (this.currentPlayer + 1) % this.players.length;
@@ -103,15 +251,121 @@ class Yukine {
         player.tryCanceled = true;
     }
 }
+
 class Player {
-    hand = new Pile();
-    played = new Pile();
-    tries = 3;
-    eligible = true;
-    lost = false;
-    tryCanceled = false;
-    constructor(name) {
-        this.name = name;
+    locations = {
+        hand: "hand",
+        played: "played",
+        tries: "tries",
+        eligible: "eligible",
+        lost: "lost",
+        tryCanceled: "tryCanceled",
+        name: "name"
+    }
+    constructor(steamID) {
+        this.steamID = steamID.toString();
+    }
+}
+class PlayerClient extends Player {
+    constructor(steamID) {
+        super(steamID);
+        this.hand = new LobbyValue();
+        this.played = new LobbyValue();
+        this.tries = new LobbyValue();
+        this.eligible = new LobbyValue();
+        this.lost = new LobbyValue();
+        this.tryCanceled = new LobbyValue();
+        this.name = new LobbyValue();
+
+        this.readHand();
+        this.readPlayed();
+        this.readTries();
+        this.readEligible();
+        this.readLost();
+        this.readTryCanceled();
+        this.readName();
+    }
+
+    readHand() {
+        this.hand.setValue(this.readUserData(this.locations.hand)?.split(","));
+    };
+    readPlayed() {
+        this.played.setValue(this.readUserData(this.locations.played)?.split(","));
+    }
+    readTries() {
+        this.tries.setValue(this.readUserData(this.locations.tries));
+    }
+    readEligible() {
+        this.eligible.setValue(this.readUserData(this.locations.eligible));
+    }
+    readLost() {
+        this.lost.setValue(this.readUserData(this.locations.lost));
+    }
+    readTryCanceled() {
+        this.tryCanceled.setValue(this.readUserData(this.locations.canceled));
+    }
+    readName() {
+        this.name.setValue(this.readUserData(this.locations.name));
+    }
+    readUserData(key) {
+        return steam.lobby.getData(this.steamID + ':' + key);
+    }
+    hasUpdate() {
+        return steam.lobby.getData('update') === 'true';
+    }
+    update() {
+        let updateFields = this.readUserData('updatefields').split(',');
+        for(let field of updateFields) {
+            this['read' + field]();
+        }
+    }
+}
+class PlayerServer extends Player {
+    constructor(steamID) {
+        super(steamID);
+        this.hand = new Pile();
+        this.played = new Pile();
+        this.tries = 3;
+        this.eligible = true;
+        this.lost = false;
+        this.tryCanceled = false;
+        this.updates = new Set();
+        this.name = steam.lobby.getData(steamID.toString());
+        this.writeName();
+    }
+    writeHand() {
+        this.writeData(this.locations.hand, this.hand.cards.join(","));
+    }
+    writePlayed() {
+        this.writeData(this.locations.played, this.played.cards.join(","));
+    }
+    writeTries() {
+        this.writeData(this.locations.tries, this.tries);
+    }
+    writeEligible() {
+        this.writeData(this.locations.eligible, this.eligible);
+    }
+    writeLost() {
+        this.writeData(this.locations.lost, this.lost);
+    }
+    writeTryCanceled() {
+        this.writeData(this.locations.tryCanceled, this.tryCanceled);
+    }
+    writeName() {
+        this.writeData(this.locations.name, this.name);
+    }
+    writeData(key, value) {
+        steam.lobby.setData(this.steamID + ':' + key, value);
+        if(!this.updates.has(key)) {
+            this.updates.add(key);
+            steam.lobby.setData(this.steamID + ':' + 'updatefields', this.updates.values().toString());
+            steam.lobby.setData(this.steamID + ':' + 'update', 'true');
+        }
+    }
+    clearUpdates() {
+        this.updates.clear();
+        steam.lobby.setData(this.steamID + ':' + 'updatefields', '');
+        steam.lobby.setData(this.steamID + ':' + 'update', 'false');
     }
     lastPlayedCard() {
         return this.played.cards[this.played.cards.length - 1];
@@ -120,6 +374,7 @@ class Player {
         this.hand.cards.splice(this.hand.cards.indexOf(card), 1);
         this.played.addCard(card);
     }
+
 }
 
 class Pile {
@@ -160,9 +415,8 @@ class Steam  {
     client = init(480);
     lobby = null;
     playerName = this.client.localplayer.getName();
+    playerSteamID = this.client.localplayer.getSteamId();
     isHost = false;
-    game = null;
-    gamePlayer = null;
 
     joinLobby(lobbyID) {
         let promise = this.client.matchmaking.joinLobby(lobbyID)
@@ -221,13 +475,11 @@ class Steam  {
     }
 
     startGame() {
-        this.game = new Yukine(this.lobby.getMembers().map(member => new Player(this.lobby.getData(member.accountId.toString()))));
-        for(let player of steam.game.players) {
-            if(player.name === steam.playerName) {
-                this.gamePlayer = player;
-                break;
-            }
+        let steamPlayers = this.lobby.getMembers();
+        if(steam.isHost) {
+            steam.yukineServer = new YukineServer(steamPlayers);
         }
+        steam.yukineClient = new YukineClient(steamPlayers);
     }
 }
 const steam = new Steam();
@@ -389,10 +641,9 @@ class GameView {
 
     }
     loadPlayers() {
-        let players = steam.game.players;
         let playerList = document.getElementById('playerList');
         playerList.innerHTML = '';
-        for(let player of players) {
+        for(let player of steam.yukineClient.players) {
             let playerElement = document.createElement('div');
             playerElement.innerText = player.name;
             playerList.appendChild(playerElement);
@@ -402,7 +653,7 @@ class GameView {
     loadPlayerHand() {
         let playerHand = document.getElementById('playerHand');
         playerHand.innerHTML = '';
-        for(let card of steam.gamePlayer.hand.cards) {
+        for(let card of steam.yukineClient.gamePlayer.hand.cards) {
             let cardElement = document.createElement('div');
             cardElement.innerText = card.value + ' ' + card.suit;
             cardElement.addEventListener('click', () => {
