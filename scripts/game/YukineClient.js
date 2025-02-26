@@ -1,12 +1,12 @@
 class YukineClient extends Yukine {
     constructor(props) {
         super(props);
-        this.currentPlayer = new LobbyValue();
-        this.deck = new LobbyValue();
-        this.discardPile = new LobbyValue();
-        this.round = new LobbyValue();
-        this.saveableLoosers = new LobbyValue();
-        this.winner = new LobbyValue();
+        this.currentPlayer = new ObservableValue();
+        this.deck = new ObservableValue();
+        this.discardPile = new ObservableValue();
+        this.round = new ObservableValue();
+        this.saveableLoosers = new ObservableValue();
+        this.winner = new ObservableValue();
         this.players = steam.lobby.getMembers().map(member => new PlayerClient(member.accountId));
 
         for(let player of this.players) {

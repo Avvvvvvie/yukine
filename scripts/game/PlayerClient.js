@@ -1,13 +1,13 @@
 class PlayerClient extends Player {
     constructor(steamID) {
         super(steamID);
-        this.hand = new LobbyValue();
-        this.played = new LobbyValue();
-        this.tries = new LobbyValue();
-        this.eligible = new LobbyValue();
-        this.lost = new LobbyValue();
-        this.tryCanceled = new LobbyValue();
-        this.name = new LobbyValue();
+        this.hand = new ObservableValue();
+        this.played = new ObservableValue();
+        this.tries = new ObservableValue();
+        this.eligible = new ObservableValue();
+        this.lost = new ObservableValue();
+        this.tryCanceled = new ObservableValue();
+        this.name = new ObservableValue();
 
         this.readHand();
         this.readPlayed();

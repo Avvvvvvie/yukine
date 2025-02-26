@@ -1,4 +1,4 @@
-class LobbyValue {
+class ObservableValue {
     constructor(value) {
         this.value = value;
         this.listeners = [];
