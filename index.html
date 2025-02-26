@@ -1,20 +1,33 @@
 <!DOCTYPE html>
 <html lang="en">
-
-<head>
-    <meta charset="UTF-8">
-    <!-- https://developer.mozilla.org/en-US/docs/Web/HTTP/CSP -->
-    <meta http-equiv="Content-Security-Policy"
-          content="default-src 'self'; script-src 'self'; style-src 'self' 'unsafe-inline'">
-    <title>Test steamworks.js</title>
-</head>
-
-<body>
-<h1>Your steam name: <span id="name"></span></h1>
-<button id="activateOverlay">activate overlay</button>
-<button id="createLobby">create lobby</button>
-<div id="lobbyId"></div>
-<script src="./renderer.js"></script>
-</body>
-
+    <head>
+        <meta charset="UTF-8">
+        <!-- https://developer.mozilla.org/en-US/docs/Web/HTTP/CSP -->
+        <meta http-equiv="Content-Security-Policy"
+              content="default-src 'self'; script-src 'self'; style-src 'self' 'unsafe-inline'">
+        <title>Test steamworks.js</title>
+        <script src="./renderer.js"></script>
+    </head>
+    <body>
+        <main>
+            <div id="menu">
+                <h1>Your steam name: <span id="name"></span></h1>
+                <label for="lobbyID">Lobby ID</label><textarea id="lobbyID" placeholder="..."></textarea>
+                <button id="joinLobby">join lobby</button>
+                <button id="activateOverlay">activate overlay</button>
+                <button id="createLobby">create lobby</button>
+            </div>
+            <div id="lobby">
+                LobbyID: <div id="lobbyIDDisplay"></div>
+                <div id="lobbyMembers"></div>
+                <div id="lobbyChat"></div>
+                <button id="leaveLobby">leave lobby</button>
+                <button id="startGame">start game</button>
+            </div>
+            <div id="game">
+                <div id="playerList"></div>
+                <div id="playerHand"></div>
+            </div>
+        </main>
+    </body>
 </html>
