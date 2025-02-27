@@ -1,57 +1,51 @@
-class YukineServer extends Yukine {
-    currentPlayer = 0;
-    deck = Pile.createDeck();
-    discardPile = new Pile();
-    round = 0;
-    saveableLoosers = 1;
-    winner = null;
-    constructor(players) {
-        super();
-        this.updates = new Set();
+class YukineServer extends Server {
+    write = {
+        deck: (pile) => pile.toString(),
+        discardPile: (pile) => pile.toString(),
+        round: (value) => value.toString(),
+        saveableLoosers: (value) => value.toString(),
+        currentPlayer: (value) => value.toString(),
+        winner: (player) => player.accountId
+    }
 
-        this.players = players.map(player => new PlayerServer(player.accountId));
+    constructor() {
+        super();
+
+        this.players = steam.players.map(player => new PlayerServer(player.accountId.toString()));
+
+        this.deck = Pile.createDeck();
         this.deck.shuffle();
         this.distributeCards(8);
+        this.writeData('deck');
 
-        this.writeCurrentPlayer();
-        this.writeDeck();
-        this.writeDiscardPile();
-        this.writeRound();
-        this.writeSaveableLoosers();
+        this.setKey('currentPlayer', 0);
+        this.setKey('discardPile', new Pile());
+        this.setKey('round', 0);
+        this.setKey('saveableLoosers', 1);
 
-        this.serverLoop();
-    }
-
-    serverLoop() {
-        setTimeout(() => {
-            this.serverLoop();
-            this.checkPlayerActions();
-        }, 3000);
-    }
-
-    checkPlayerActions() {
         for(let player of this.players) {
-            let actiondata = player.readAction();
-            if(actiondata) {
-                let action = actiondata[0];
-                let value = actiondata[1];
-                switch (action) {
-                    case 'playCard':
-                        if(this.getTurn().steamID !== player.steamID) break;
-                        let sentCard = Card.fromString(value);
-                        let playerCard = player.hand.cards.find(card => card.value === sentCard.value && card.suit === sentCard.suit);
-                        if(playerCard === undefined) break;
-                        player.playCard(playerCard);
-                        this.nextTurn();
-                        break;
-                    case 'try':
-                        this.useTry(player);
-                        break;
-                    case 'canceltry':
-                        this.cancelTry(player);
-                        break;
-                }
-                player.clearAction();
+            player.updateServer.subscribe(this.checkPlayerActions.bind(this));
+        }
+    }
+
+    checkPlayerActions(playerId, action, value) {
+        for(let player of this.players) {
+            if(player.accountId !== playerId.toString()) continue;
+            switch (action) {
+                case 'playCard':
+                    if(this.getTurn().accountId !== player.accountId) break;
+                    let sentCard = Card.fromString(value);
+                    let playerCard = player.hand.cards.find(card => card.value === sentCard.value && card.suit === sentCard.suit);
+                    if(playerCard === undefined) break;
+                    player.playCard(playerCard);
+                    this.nextTurn();
+                    break;
+                case 'try':
+                    this.useTry(player);
+                    break;
+                case 'canceltry':
+                    this.cancelTry(player);
+                    break;
             }
         }
     }
@@ -62,74 +56,33 @@ class YukineServer extends Yukine {
                 player.giveCard(this.deck.drawCard());
             }
         }
-        this.writeDeck();
+        this.writeData('deck');
     }
-    writeCurrentPlayer() {
-        this.writeData(this.locations.currentPlayer, this.currentPlayer.toString());
-    }
-    writeDeck() {
-        this.writeData(this.locations.deck, this.deck.toString());
-    }
-    writeDiscardPile() {
-        this.writeData(this.locations.discardPile, this.discardPile.toString());
-    }
-    writeRound() {
-        this.writeData(this.locations.round, this.round.toString());
-    }
-    writeSaveableLoosers() {
-        this.writeData(this.locations.saveableLoosers, this.saveableLoosers.toString());
-    }
-    writeWinner() {
-        this.writeData(this.locations.winner, this.winner?.steamID.toString());
-    }
-    setWinner(player) {
-        this.winner = player;
-        this.writeWinner();
-    }
-    setSaveableLoosers(value) {
-        this.saveableLoosers = value;
-        this.writeSaveableLoosers();
-    }
-    setRound(value) {
-        this.round = value;
-        this.writeRound();
-    }
+
     getTurn() {
         return this.players[this.currentPlayer];
-    }
-    writeData(key, value) {
-        steam.lobby.setData(key, value);
-        if(!this.updates.has(key)) {
-            this.updates.add(key);
-            let updateString = "";
-            for(let value of this.updates.values()) {
-                updateString += value + Yukine.delimiters.update;
-            }
-            updateString = updateString.substring(0, updateString.length - Yukine.delimiters.update.length);
-            steam.lobby.setData('updatefields', updateString);
-            steam.lobby.setData('update', 'true');
-        }
     }
     nextTurn() {
         this.currentPlayer = (this.currentPlayer + 1) % this.players.length;
         if(this.currentPlayer === 0) {
-            let winner = this.findRoundWinner();
-            if(winner) {
+            let roundWinner = this.findRoundWinner();
+            if(roundWinner) {
                 for(let player of this.players) {
                     for(let card of player.played.cards) {
-                        winner.giveCard(card);
+                        roundWinner.giveCard(card);
                     }
                     player.clearPlayed();
                 }
+                this.setKey('roundWinner',roundWinner);
             }
             this.findRoundLoosers();
             let totalWinner = this.findTotalWinner();
             if(totalWinner) {
-                this.setWinner(totalWinner)
+                this.setKey('winner', totalWinner);
                 return null;
             }
-            this.writeCurrentPlayer();
-            this.setRound(this.round + 1);
+            this.writeData('currentPlayer');
+            this.setKey('round',this.round + 1);
             this.markEligiblePlayers();
         }
     }
@@ -140,8 +93,8 @@ class YukineServer extends Yukine {
                 if(player1 === player2) continue;
                 if(player2.eligible === true && player1.eligible === true) continue;
                 if(player1.lastPlayedCard().value + 1 > player2.lastPlayedCard().value && player1.lastPlayedCard().value - 1 < player2.lastPlayedCard().value) {
-                    player1.setEligible(true);
-                    player2.setEligible(true);
+                    player1.setKey('eligible',true);
+                    player2.setKey('eligible',true);
                     break;
                 }
             }
@@ -151,10 +104,10 @@ class YukineServer extends Yukine {
         for(let player of this.players) {
             if(player.hand.size() === 0) {
                 if(this.saveableLoosers > 0) {
-                    this.setSaveableLoosers(this.saveableLoosers - 1);
+                    this.setKey('saveableLoosers', this.saveableLoosers - 1);
                     this.giveCardToPlayer(player);
                 } else {
-                    player.setLost(true);
+                    player.setKey('lost',true);
                 }
             }
         }
@@ -185,13 +138,13 @@ class YukineServer extends Yukine {
     }
     giveCardToPlayer(player) {
         player.giveCard(this.deck.drawCard());
-        this.writeDeck();
+        this.writeData('deck');
     }
     useTry(player) {
         player.useTry();
         this.giveCardToPlayer(player);
     }
     cancelTry(player) {
-        player.tryCanceled = true;
+        player.setKey('tryCanceled', true);
     }
 }

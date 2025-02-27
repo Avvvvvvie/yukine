@@ -2,8 +2,12 @@ class GameView {
     startGame() {
         windows.setWindow(windows.windows.game);
         steam.startGame();
-        gameView.loadPlayerHand();
+
         gameView.loadPlayers();
+
+        steam.yukineClient.gamePlayer.hand.subscribe((oldValue, newValue) => {
+            gameView.loadPlayerHand();
+        });
 
     }
     loadPlayers() {
@@ -11,7 +15,9 @@ class GameView {
         playerList.innerHTML = '';
         for(let player of steam.yukineClient.players) {
             let playerElement = document.createElement('div');
-            playerElement.innerText = player.name.value;
+            player.name.subscribe((oldValue, newValue) => {
+                playerElement.innerText = newValue;
+            });
             playerList.appendChild(playerElement);
         }
     }
@@ -22,6 +28,7 @@ class GameView {
         for(let card of steam.yukineClient.gamePlayer.hand.value.cards) {
             let cardElement = document.createElement('div');
             cardElement.classList.add('card');
+            if(steam.settings.cardStyle.value) cardElement.classList.add(steam.yukineClient.cardStyle.value);
             cardElement.setAttribute('data-value', card.value);
             cardElement.setAttribute('data-suit', card.suit);
             cardElement.innerText = card.valueString + ' ' + card.suitString;

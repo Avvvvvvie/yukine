@@ -29,9 +29,9 @@ class Pile {
     toString() {
         let string = '';
         for(let card of this.cards) {
-            string += card.toString() + ',';
+            string += card.toString() + Yukine.delimiters.pile;
         }
-        return string.substring(0, string.length - 1);
+        return string.substring(0, string.length - Yukine.delimiters.pile.length);
     }
     static fromString(string) {
         if(string === null) return new Pile();

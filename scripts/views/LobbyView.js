@@ -10,18 +10,10 @@ class LobbyView {
 
         windows.hideElement(document.getElementById('startGame'));
 
-        const callback1 = steam.client.callback.register(SteamCallback.LobbyDataUpdate, (data) => {
-            console.log('LobbyDataUpdate', data);
+        document.getElementById('cardStyleSelect').addEventListener('change', (event) => {
+            let select = event.target;
+            steam.settingsServer.setKey('cardStyle',select.options[select.selectedIndex].value);
         });
-
-        const callback2 = steam.client.callback.register(SteamCallback.LobbyChatUpdate, (data) => {
-            console.log('LobbyChatUpdate', data);
-        });
-
-        setTimeout(() => {
-            callback1.disconnect()
-            callback2.disconnect()
-        }, 5000);
     }
 
     showLobby = (lobby) => {

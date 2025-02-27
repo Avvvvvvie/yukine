@@ -1,20 +1,14 @@
 class Yukine {
-    locations = {
-        currentPlayer: "CurrentPlayer",
-        deck: "Deck",
-        discardPile: "DiscardPile",
-        round: "Round",
-        saveableLoosers: "SaveableLoosers",
-        winner: "Winner"
-    }
     static delimiters = {
         card: ":C:",
         pile: ":P:",
         action: ":A:",
         update: ":U:",
         player: "::",
+        updateTarget: "----",
+        path: "aaaa"
     }
-    constructor() {
-        this.steamplayers = steam.lobby.getMembers();
+    static settings = {
+        cardStyle: 'default'
     }
 }

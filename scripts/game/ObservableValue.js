@@ -1,16 +1,16 @@
 class ObservableValue {
     constructor(value) {
         this.value = value;
-        this.listeners = [];
+        this.observers = [];
     }
-    addListener(callback) {
-        this.listeners.push(callback);
+    subscribe(callback) {
+        this.observers.push(callback);
     }
     setValue(value) {
         let oldValue = this.value;
         this.value = value;
-        for(let listener of this.listeners) {
-            listener(oldValue, value);
+        for(let observer of this.observers) {
+            observer(oldValue, value);
         }
     }
 }

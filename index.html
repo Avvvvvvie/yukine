@@ -7,11 +7,18 @@
               content="default-src 'self'; script-src 'self'; style-src 'self' 'unsafe-inline'">
         <title>Test steamworks.js</title>
         <script src="./scripts/requirements.js"></script>
-        <script src="./scripts/Steam.js"></script>
-        <script src="./scripts/Window.js"></script>
-        <script src="scripts/game/ObservableValue.js"></script>
+        <script src="./scripts/views/Window.js"></script>
+        <script src="./scripts/game/ObservableValue.js"></script>
+        <script src="./scripts/game/SteamCallbackObservable.js"></script>
+        <script src="./scripts/game/Client.js"></script>
+        <script src="./scripts/game/Server.js"></script>
+        <script src="./scripts/game/SettingsClient.js"></script>
+        <script src="./scripts/game/SettingsServer.js"></script>
+        <script src="./scripts/game/Steam.js"></script>
         <script src="./scripts/game/Card.js"></script>
         <script src="./scripts/game/Pile.js"></script>
+        <script src="./scripts/game/UpdateClient.js"></script>
+        <script src="./scripts/game/UpdateServer.js"></script>
         <script src="./scripts/game/Player.js"></script>
         <script src="./scripts/game/PlayerClient.js"></script>
         <script src="./scripts/game/PlayerServer.js"></script>
@@ -40,6 +47,10 @@
                 LobbyID: <div id="lobbyIDDisplay"></div>
                 <div id="lobbyMembers"></div>
                 <div id="lobbyChat"></div>
+                <label for="cardStyleSelect">select card style</label>
+                <select id="cardStyleSelect">
+                    <option value="ugly">Ugly</option>
+                </select>
                 <button id="leaveLobby">leave lobby</button>
                 <button id="startGame">start game</button>
             </div>
