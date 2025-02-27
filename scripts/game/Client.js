@@ -9,6 +9,10 @@ class Client {
     }
     constructor(path = '') {
         this.updateClient = new UpdateClient(path);
+
+    }
+    startSubscription() {
+        this.updateClient.subscribe(this.updateKey.bind(this));
     }
     updateKey(key, value) {
         this[key].setValue(this.read[key] ? this.read[key](value) : value);

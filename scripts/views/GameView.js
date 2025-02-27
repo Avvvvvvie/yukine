@@ -28,7 +28,7 @@ class GameView {
         for(let card of steam.yukineClient.gamePlayer.hand.value.cards) {
             let cardElement = document.createElement('div');
             cardElement.classList.add('card');
-            if(steam.settings.cardStyle.value) cardElement.classList.add(steam.yukineClient.cardStyle.value);
+            if(steam.settings.cardStyle.value) cardElement.classList.add(steam.settings.cardStyle.value);
             cardElement.setAttribute('data-value', card.value);
             cardElement.setAttribute('data-suit', card.suit);
             cardElement.innerText = card.valueString + ' ' + card.suitString;

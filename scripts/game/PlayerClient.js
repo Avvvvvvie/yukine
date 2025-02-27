@@ -21,6 +21,6 @@ class PlayerClient extends Client {
 
         this.name.setValue(steam.lobby.getData(accountId.toString()));
 
-        this.updateClient.subscribe(this.updateKey.bind(this));
+        this.startSubscription();
     }
 }

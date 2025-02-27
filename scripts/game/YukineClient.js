@@ -9,6 +9,7 @@ class YukineClient extends Client {
     }
     constructor() {
         super();
+
         this.settings = new SettingsClient();
 
         this.currentPlayer = new ObservableValue();
@@ -19,8 +20,6 @@ class YukineClient extends Client {
         this.winner = new ObservableValue();
         this.roundWinner = new ObservableValue();
 
-        this.updateClient.subscribe(this.updateKey.bind(this));
-
         this.players = steam.players.map(member => new PlayerClient(member.accountId.toString()));
 
         for(let player of this.players) {
@@ -29,6 +28,7 @@ class YukineClient extends Client {
                 break;
             }
         }
+        this.startSubscription();
     }
 
     useTry() {
