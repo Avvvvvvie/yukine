@@ -37,20 +37,26 @@ class Steam  {
         return promise;
     }
     addChatMessage(message) {
-        this.lobby.setData('chat', this.lobby.getData('chat') + ',' + message);
+        let oldchat = this.lobby.getData('chat') || '';
+        if(oldchat !== '') oldchat += '\n';
+        steam.lobby.setData('chat', oldchat + message);
     }
     addPlayerInfo() {
-        this.lobby.setData(this.playerAccountId, Steam.client.localplayer.getName());
+        steam.lobby.setData(this.playerAccountId, Steam.client.localplayer.getName());
     }
     setHost() {
-        this.isHost = true;
-        this.lobby.setData('host', this.playerAccountId);
+        steam.isHost = true;
+        steam.lobby.setData('host', this.playerAccountId);
     }
     leaveLobby() {
         if(this.lobby) {
-            this.lobby.leave();
-            this.lobby = null;
-            this.isHost = false;
+            steam.lobby.leave();
+            steam.lobby = null;
+            steam.yukineServer = null;
+            steam.yukineClient = null;
+            steam.settings = null;
+            steam.settingsServer = null
+            steam.isHost = false;
         }
     }
     openGamePage() {
@@ -73,7 +79,7 @@ class Steam  {
     }
 
     startGame() {
-        this.players = this.lobby.getMembers();
+        this.players = steam.lobby.getMembers();
 
         if(steam.isHost) {
             steam.yukineServer = new YukineServer();

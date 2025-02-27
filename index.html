@@ -29,6 +29,7 @@
         <script src="./scripts/views/LobbyView.js"></script>
         <script src="./scripts/views/GameView.js"></script>
         <script src="./scripts/renderer.js"></script>
+        <link rel="stylesheet" href="./styles/reset.css">
         <link rel="stylesheet" href="./styles/main.css">
         <link rel="stylesheet" href="./styles/menu.css">
         <link rel="stylesheet" href="./styles/lobby.css">
@@ -38,10 +39,14 @@
         <main>
             <div id="menu">
                 <h1>Your steam name: <span id="name"></span></h1>
-                <label for="lobbyID">Lobby ID</label><textarea id="lobbyID" placeholder="..."></textarea>
-                <button id="joinLobby">join lobby</button>
-                <button id="activateOverlay">activate overlay</button>
-                <button id="createLobby">create lobby</button>
+                <div class="row">
+                    <div class="column">
+                        <label for="lobbyID">Lobby ID</label><textarea id="lobbyID" placeholder="..."></textarea>
+                    </div>
+                    <button id="joinLobby">join lobby</button>
+                    <button id="activateOverlay">activate overlay</button>
+                    <button id="createLobby">create lobby</button>
+                </div>
             </div>
             <div id="lobby">
                 LobbyID: <div id="lobbyIDDisplay"></div>

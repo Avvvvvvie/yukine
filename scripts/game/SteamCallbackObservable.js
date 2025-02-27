@@ -18,4 +18,7 @@ class SteamCallbackObservable {
     subscribe(SteamCallback, callback) {
         this.callbackObservers[SteamCallback].push(callback);
     }
+    unsubscribe(SteamCallback, callback) {
+        this.callbackObservers[SteamCallback].splice(this.callbackObservers[SteamCallback].indexOf(callback), 1);
+    }
 }
