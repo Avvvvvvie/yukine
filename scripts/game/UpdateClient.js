@@ -34,7 +34,7 @@ class UpdateClient {
         steam.lobby.setData(steam.playerAccountId + Yukine.delimiters.player + this.path + Yukine.delimiters.action + key, value);
         if(!this.updates.has(key)) {
             this.updates.add(key);
-            this.sendAction();
+            asyncTimeout(1).then(() => this.sendAction());
         }
     }
 

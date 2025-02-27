@@ -51,7 +51,7 @@ class UpdateServer {
             let playerUpdates = this.updates[player.accountId];
             if(!playerUpdates.has(key)) {
                 playerUpdates.add(key);
-                this.sendUpdate(player);
+                asyncTimeout(1).then(() => this.sendUpdate(player));
             }
         }
     }
