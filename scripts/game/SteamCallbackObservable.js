@@ -1,8 +1,7 @@
 class SteamCallbackObservable {
     callbackObservers = {};
     constructor() {
-        this.callbackObservers[SteamCallback.LobbyDataUpdate] = [];
-        this.callbackObservers[SteamCallback.GameLobbyJoinRequested] = [];
+        this.unsubscribeAll();
 
         this.callback = Steam.client.callback.register(SteamCallback.LobbyDataUpdate, (data) => {
             for(let observer of this.callbackObservers[SteamCallback.LobbyDataUpdate]) {
@@ -20,5 +19,10 @@ class SteamCallbackObservable {
     }
     unsubscribe(SteamCallback, callback) {
         this.callbackObservers[SteamCallback].splice(this.callbackObservers[SteamCallback].indexOf(callback), 1);
+    }
+
+    unsubscribeAll() {
+        this.callbackObservers[SteamCallback.LobbyDataUpdate] = [];
+        this.callbackObservers[SteamCallback.GameLobbyJoinRequested] = [];
     }
 }

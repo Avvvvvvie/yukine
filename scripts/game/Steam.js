@@ -1,6 +1,6 @@
 class Steam  {
     static client = init(480);
-    constructor(props) {
+    constructor() {
         this.steamCallback = new SteamCallbackObservable();
         this.playerName = Steam.client.localplayer.getName();
         this.playerAccountId = Steam.client.localplayer.getSteamId().accountId.toString();
@@ -28,11 +28,11 @@ class Steam  {
     joinLobby(lobbyID) {
         let promise = Steam.client.matchmaking.joinLobby(lobbyID)
         promise.then((lobby) => {
-            this.players = this.lobby.getMembers();
+            steam.lobby = lobby;
+            this.players = steam.lobby.getMembers();
             this.addChatMessage(steam.playerName + ' joined the lobby');
             this.addPlayerInfo();
             this.settings = new SettingsClient();
-            steam.lobby = lobby;
         });
         return promise;
     }
@@ -57,6 +57,7 @@ class Steam  {
             steam.settings = null;
             steam.settingsServer = null
             steam.isHost = false;
+            steam.steamCallback.unsubscribeAll();
         }
     }
     openGamePage() {
