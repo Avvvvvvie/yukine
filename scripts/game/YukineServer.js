@@ -68,10 +68,22 @@ class YukineServer extends Server {
             let roundWinner = this.findRoundWinner();
             if(roundWinner) {
                 for(let player of this.players) {
-                    for(let card of player.played.cards) {
-                        roundWinner.giveCard(card);
+                    if(player.loosesCards) {
+                        // give cards to winner
+                        for(let card of player.played.cards) {
+                            roundWinner.giveCard(card);
+                        }
+                        player.clearPlayed();
+                    } else {
+                        // give back cards into hand
+                        for(let card of player.played.cards) {
+                            player.giveCard(card);
+                        }
+                        player.clearPlayed();
+                        // explicitly not loosing cards
+                        player.setKey('loosesCards', false);
                     }
-                    player.clearPlayed();
+
                 }
                 this.setKey('roundWinner',roundWinner);
             }
@@ -84,6 +96,7 @@ class YukineServer extends Server {
             this.writeData('currentPlayer');
             this.setKey('round',this.round + 1);
             this.markEligiblePlayers();
+            this.unCancelPlayers();
         }
     }
 
@@ -128,23 +141,78 @@ class YukineServer extends Server {
     }
     findRoundWinner() {
         let sortedPlayers = this.players.filter(player => player.eligible).sort((a, b) => a.lastPlayedCard().value - b.lastPlayedCard().value);
-        // todo: check if everyone has the same card
-        for(let i = 0; i < this.players.length - 1; i++) {
-            if(!(sortedPlayers[sortedPlayers.length - i - 2] + 1 >= sortedPlayers[sortedPlayers.length - i - 1])){
-                return sortedPlayers[sortedPlayers.length - i - 1];
+
+        let streetLength = 0;
+        let longestStreet = 0;
+        let longestStreetPlayer = null;
+        let currentPlayer= this.players.length - 1
+
+        let allSame = true;
+
+        for(currentPlayer; currentPlayer >= 1; currentPlayer--) {
+            if(sortedPlayers[currentPlayer - 1] + 1 === sortedPlayers[currentPlayer]){
+                streetLength++;
+                if(streetLength > longestStreet) {
+                    longestStreet = streetLength;
+                    longestStreetPlayer = sortedPlayers[currentPlayer - 1];
+                }
+            } else {
+                if(allSame && sortedPlayers[currentPlayer] !== sortedPlayers[currentPlayer - 1]) {
+                    allSame = false;
+                }
+                streetLength = 0;
             }
         }
+        // case: there is a street of 3 or more, the player at the lower end of the street wins
+        // anyone not in the street does not have to give their cards to the winner
+        if(longestStreet >= 3) {
+            // only players in the street loose cards
+            for(let currentPlayer = longestStreetPlayer; currentPlayer < longestStreetPlayer + longestStreet; currentPlayer++) {
+                sortedPlayers[currentPlayer].setKey('loosesCards', true);
+            }
+            return sortedPlayers[longestStreetPlayer];
+        }
+
+        // case: everyone has the same card, everyone gets the hand of their right neighbor
+        if(allSame) {
+            this.handAroundHands();
+            return null;
+        }
+
+        // case: noone has adjacent cards
+        if(longestStreet === 0) {
+            // everyone else looses cards
+            for(let currentPlayer = 0; currentPlayer < this.players.length - 2; currentPlayer++) {
+                sortedPlayers[currentPlayer].setKey('loosesCards', true);
+            }
+            return sortedPlayers[sortedPlayers.length - 1];
+        }
+
         return null;
     }
+    handAroundHands() {
+        for(let currentPlayer = 0; currentPlayer < this.players.length; currentPlayer++) {
+            let rightPlayer = currentPlayer === this.players.length - 1 ? 0 : currentPlayer;
+            this.players[currentPlayer].hand = this.players[rightPlayer].hand;
+        }
+    }
+
     giveCardToPlayer(player) {
         player.giveCard(this.deck.drawCard());
         this.writeData('deck');
     }
     useTry(player) {
+        if(player.tries <= 0) return;
+        if(player.tryCanceled) return;
         player.useTry();
         this.giveCardToPlayer(player);
     }
     cancelTry(player) {
         player.setKey('tryCanceled', true);
+    }
+    unCancelPlayers() {
+        for(let player of this.players) {
+            player.setKey('tryCanceled', false);
+        }
     }
 }
