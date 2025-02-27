@@ -65,33 +65,12 @@ class YukineServer extends Server {
     nextTurn() {
         this.currentPlayer = (this.currentPlayer + 1) % this.players.length;
         if(this.currentPlayer === 0) {
-            let roundWinner = this.findRoundWinner();
-            if(roundWinner) {
-                for(let player of this.players) {
-                    if(player.loosesCards) {
-                        // give cards to winner
-                        for(let card of player.played.cards) {
-                            roundWinner.giveCard(card);
-                        }
-                        player.clearPlayed();
-                    } else {
-                        // give back cards into hand
-                        for(let card of player.played.cards) {
-                            player.giveCard(card);
-                        }
-                        player.clearPlayed();
-                        // explicitly not loosing cards
-                        player.setKey('loosesCards', false);
-                    }
-
-                }
-                this.setKey('roundWinner',roundWinner);
-            }
-            this.findRoundLoosers();
+            this.findRoundWinner();
+            this.findLoosers();
             let totalWinner = this.findTotalWinner();
             if(totalWinner) {
                 this.setKey('winner', totalWinner);
-                return null;
+                return;
             }
             this.writeData('currentPlayer');
             this.setKey('round',this.round + 1);
@@ -113,7 +92,7 @@ class YukineServer extends Server {
             }
         }
     }
-    findRoundLoosers() {
+    findLoosers() {
         for(let player of this.players) {
             if(player.hand.size() === 0) {
                 if(this.saveableLoosers > 0) {
@@ -140,55 +119,143 @@ class YukineServer extends Server {
         }
     }
     findRoundWinner() {
-        let sortedPlayers = this.players.filter(player => player.eligible).sort((a, b) => a.lastPlayedCard().value - b.lastPlayedCard().value);
+        let sortedPlayers = this.players.sort((a, b) => a.lastPlayedCard().value - b.lastPlayedCard().value);
+        let cardOcurrences = sortedPlayers.reduce((acc, e) => acc.set(e, (acc.get(e) || 0) + 1), new Map());
+        let streets = [];
+        let streetStart = 0;
+        let duplicates = 0;
+        for(let currentPlayer = 0; currentPlayer <= sortedPlayers.length - 2; currentPlayer++) {
+            if(sortedPlayers[currentPlayer] !== sortedPlayers[currentPlayer + 1] + 1){
+                streets.push({
+                    start: streetStart,
+                    end: currentPlayer,
+                    players: currentPlayer - streetStart + 1,
+                    length: currentPlayer - streetStart + 1 - duplicates,
+                    duplicates: duplicates
+                });
+                streetStart = currentPlayer + 1;
+                duplicates = 0;
+            } else if(sortedPlayers[currentPlayer] === sortedPlayers[currentPlayer + 1] + 1) {
+                duplicates++;
+            }
+        }
 
-        let streetLength = 0;
-        let longestStreet = 0;
-        let longestStreetPlayer = null;
-        let currentPlayer= this.players.length - 1
-
-        let allSame = true;
-
-        for(currentPlayer; currentPlayer >= 1; currentPlayer--) {
-            if(sortedPlayers[currentPlayer - 1] + 1 === sortedPlayers[currentPlayer]){
-                streetLength++;
-                if(streetLength > longestStreet) {
-                    longestStreet = streetLength;
-                    longestStreetPlayer = sortedPlayers[currentPlayer - 1];
+        if(sortedPlayers[0] === 2) {
+            let duplicates = 0;
+            for(let currentPlayer = 1; currentPlayer <= sortedPlayers.length - 3; currentPlayer++) {
+                if(sortedPlayers[currentPlayer] === 2) {
+                    duplicates++;
                 }
+            }
+
+            for(let currentStreet = streets.length - 1; currentStreet >= 0; currentStreet--) {
+                if(streets[currentStreet].end === sortedPlayers.length - 1) {
+                    streets[currentStreet].players += duplicates + 1;
+                    streets[currentStreet].length++;
+                    streets[currentStreet].duplicates += duplicates;
+                    streets[currentStreet].end = duplicates;
+                }
+            }
+        }
+
+
+        let streetLengths = streets.map(obj => obj.length);
+
+        //if highest length is 1
+        if(Math.max(...streetLengths) === 1) {
+            if(cardOcurrences.get(0) === 1) {
+                // card 0 wins
+                let winner = sortedPlayers.find(player => player.lastPlayedCard().value === 0);
+                // give played cards to winner
+                for(let player of sortedPlayers) {
+                    if(player === winner) continue;
+                    winner.giveCards(player.played);
+                    player.writeData('played');
+                    player.setCardStatus(Yukine.cardStatus.LOOSE);
+                }
+                return;
             } else {
-                if(allSame && sortedPlayers[currentPlayer] !== sortedPlayers[currentPlayer - 1]) {
-                    allSame = false;
+                // the highest card wins
+                let winner = sortedPlayers[sortedPlayers.length - 1];
+                // give played cards to winner
+                for(let player of sortedPlayers) {
+                    if(player === winner) continue;
+                    winner.giveCards(player.played);
+                    player.writeData('played');
+                    player.setCardStatus(Yukine.cardStatus.LOOSE);
                 }
-                streetLength = 0;
+                return;
             }
         }
-        // case: there is a street of 3 or more, the player at the lower end of the street wins
-        // anyone not in the street does not have to give their cards to the winner
-        if(longestStreet >= 3) {
-            // only players in the street loose cards
-            for(let currentPlayer = longestStreetPlayer; currentPlayer < longestStreetPlayer + longestStreet; currentPlayer++) {
-                sortedPlayers[currentPlayer].setKey('loosesCards', true);
+
+        const getPlayers = (obj) => sortedPlayers.slice(obj.start, obj.end + 1);
+        // triggers are at least 2 players but length < 3
+        let triggers = streets.filter(obj => obj.players >= 2 && obj.length <= 2);
+
+        // if highest length is 2
+        if(Math.max(...streetLengths) === 2) {
+            // noone wins
+            for(let player of sortedPlayers) {
+                player.setCardStatus(Yukine.cardStatus.NONE);
             }
-            return sortedPlayers[longestStreetPlayer];
-        }
-
-        // case: everyone has the same card, everyone gets the hand of their right neighbor
-        if(allSame) {
-            this.handAroundHands();
-            return null;
-        }
-
-        // case: noone has adjacent cards
-        if(longestStreet === 0) {
-            // everyone else looses cards
-            for(let currentPlayer = 0; currentPlayer < this.players.length - 2; currentPlayer++) {
-                sortedPlayers[currentPlayer].setKey('loosesCards', true);
+            // triggers are eligible
+            for(let trigger of triggers) {
+                for(let player of getPlayers(trigger)) {
+                    player.setKey('eligible', true);
+                }
             }
-            return sortedPlayers[sortedPlayers.length - 1];
+            return;
         }
 
-        return null;
+        let singles = streets.filter(obj => obj.players === 1);
+        let duplicateStreets = streets.filter(obj => obj.length > 2 && obj.duplicates > 0);
+        let cleanStreets = streets.filter(obj => obj.length > 2 && obj.duplicates === 0);
+
+        // if there are streets of length 2
+        if(duplicateStreets.length > 0 || triggers.length > 0) {
+            // noone wins
+            for(let player of sortedPlayers) {
+                player.setCardStatus(Yukine.cardStatus.NONE);
+            }
+            // duplicates are eligible
+            for(let street of duplicateStreets) {
+                for(let player of getPlayers(street)) {
+                    player.setKey('eligible', true);
+                }
+            }
+            // pairs are eligible
+            for(let street of cleanStreets) {
+                for (let player of getPlayers(street)) {
+                    player.setKey('eligible', true);
+                }
+            }
+            return;
+        }
+
+        for(let other of cleanStreets) {
+            // singles keep their cards
+            for(let player of getPlayers(singles)) {
+                player.setCardStatus(Yukine.cardStatus.KEEP);
+            }
+            let players = getPlayers(other);
+            // winner is the highest card or if it ends with 2 then 2
+            let winner;
+            if(other[other.length - 1] === 2) {
+                winner = players.find(player => player.lastPlayedCard().value === 2);
+            } else {
+                winner = players[players.length - 1];
+            }
+            for(let player of players) {
+                if(player === winner) {
+                    player.setCardStatus(Yukine.cardStatus.WIN);
+                } else {
+                    // give played cards to first player
+                    winner.giveCards(player.played);
+                    player.writeData('played');
+                    player.setCardStatus(Yukine.cardStatus.LOOSE);
+                }
+            }
+        }
     }
     handAroundHands() {
         for(let currentPlayer = 0; currentPlayer < this.players.length; currentPlayer++) {

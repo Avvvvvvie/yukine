@@ -17,6 +17,10 @@ class PlayerServer extends Server {
         this.setKey('lost', false);
         this.setKey('tryCanceled', false);
         this.setKey('name', steam.lobby.getData(accountId.toString()));
+        this.setKey('cardStatus', Yukine.cardStatus.NONE);
+    }
+    setCardStatus(status) {
+        this.setKey('cardStatus', status);
     }
     lastPlayedCard() {
         return this.played.cards[this.played.cards.length - 1];
@@ -31,6 +35,10 @@ class PlayerServer extends Server {
     useTry() {
         this.tries--;
         this.writeData('tries');
+    }
+    giveCards(pile) {
+        pile.cards.forEach(card => this.hand.addCard(card));
+        this.writeData('hand');
     }
     giveCard(card) {
         this.hand.addCard(card);

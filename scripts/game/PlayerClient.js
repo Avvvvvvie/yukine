@@ -5,8 +5,7 @@ class PlayerClient extends Client {
         tries: (value) => parseInt(value),
         eligible: (value) => value === "true",
         lost: (value) => value === "true",
-        tryCanceled: (value) => value === "true",
-        loosesCards: (value) => value === "true",
+        tryCanceled: (value) => value === "true"
     }
     constructor(accountId) {
         super(accountId);
@@ -20,6 +19,7 @@ class PlayerClient extends Client {
         this.name = new ObservableValue();
         this.roundWinner = new ObservableValue();
         this.loosesCards = new ObservableValue();
+        this.cardStatus = new ObservableValue();
 
         this.name.setValue(steam.lobby.getData(accountId.toString()));
 
