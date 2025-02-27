@@ -10,8 +10,8 @@ class PlayerClient extends Client {
     constructor(accountId) {
         super(accountId);
         this.accountId = accountId;
-        this.hand = new ObservableValue();
-        this.played = new ObservableValue();
+        this.hand = new ObservableValue(new Pile());
+        this.played = new ObservableValue(new Pile());
         this.tries = new ObservableValue();
         this.eligible = new ObservableValue();
         this.lost = new ObservableValue();

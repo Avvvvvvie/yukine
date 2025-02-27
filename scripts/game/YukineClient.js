@@ -13,8 +13,8 @@ class YukineClient extends Client {
         this.settings = new SettingsClient();
 
         this.currentPlayer = new ObservableValue();
-        this.deck = new ObservableValue();
-        this.discardPile = new ObservableValue();
+        this.deck = new ObservableValue(new Pile());
+        this.discardPile = new ObservableValue(new Pile());
         this.round = new ObservableValue();
         this.saveableLoosers = new ObservableValue();
         this.winner = new ObservableValue();

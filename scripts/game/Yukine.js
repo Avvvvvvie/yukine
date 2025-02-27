@@ -8,7 +8,4 @@ class Yukine {
         updateTarget: "----",
         path: "aaaa"
     }
-    static settings = {
-        cardStyle: 'default'
-    }
 }

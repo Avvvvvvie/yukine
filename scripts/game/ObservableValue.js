@@ -6,6 +6,10 @@ class ObservableValue {
     subscribe(callback) {
         this.observers.push(callback);
     }
+    subscribeRead(callback) {
+        callback(this.value, this.value);
+        this.subscribe(callback);
+    }
     setValue(value) {
         let oldValue = this.value;
         this.value = value;
