@@ -14,4 +14,4 @@ start the game with `npm run start`
 
 # steamworks
 
-the game uses https://github.com/ceifa/steamworks.js/tree/main
+the game uses https://github.com/ceifa/steamworks.js
