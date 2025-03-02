@@ -14,7 +14,9 @@ class Yukine {
         WIN: "WIN",
         KEEP: "KEEP",
         SWAP: "SWAP",
-        TOTALWIN: "TOTALWIN"
+        TOTALWIN: "TOTALWIN",
+        TOTALLOOSE: "TOTALLOOSE",
+        ELIGIBLE: "ELIGIBLE",
     }
     static gameState = {
         LOBBY: "LOBBY",

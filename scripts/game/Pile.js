@@ -19,7 +19,7 @@ class Pile {
     }
     static createDeck() {
         let deck = new Pile();
-        for(let value = 1; value <= 13; value++) {
+        for(let value = 2; value <= 14; value++) {
             for(let suit = 0; suit < 4; suit++) {
                 deck.addCard(new Card(value, suit));
             }

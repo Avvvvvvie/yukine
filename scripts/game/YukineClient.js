@@ -14,6 +14,7 @@ class YukineClient extends Client {
         this.round = new ObservableValue();
         this.saveableLoosers = new ObservableValue();
         this.gameState = new ObservableValue();
+        this.gameInfo = new ObservableValue('');
     }
 
     initPlayers() {

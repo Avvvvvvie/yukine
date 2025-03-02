@@ -20,8 +20,16 @@
     background-color: gold;
 }
 
+[data-state="TOTALLOOSE"] {
+    background-color: darkred;
+}
+
 [data-state="KEEP"] {
     background-color: blue;
+}
+
+[data-state="ELIGIBE"] {
+    background-color: #00ffff;
 }
 
 [data-state="LOOSE"] {
@@ -38,6 +46,10 @@
 
 [data-state="NONE"] {
     background-color: grey;
+}
+
+[data-eligible="ELIGIBLE"] {
+    background-color: #4bbd3e;
 }
 
 .playerName {

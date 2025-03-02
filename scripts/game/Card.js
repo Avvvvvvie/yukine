@@ -19,7 +19,7 @@ class Card {
     }
     static getValueLetter(value) {
         switch(value) {
-            case 1:
+            case 14:
                 return 'A';
             case 11:
                 return 'J';

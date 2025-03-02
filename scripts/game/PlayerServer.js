@@ -3,8 +3,6 @@ class PlayerServer extends Server {
         hand: (value) => value.toString(),
         played: (value) => value.toString(),
         tries: (value) => value.toString(),
-        eligible: (value) => value.toString(),
-        lost: (value) => value.toString(),
         tryCanceled: (value) => value.toString(),
         turn: (value) => value.toString(),
         isBot: (value) => value.toString(),
@@ -15,11 +13,9 @@ class PlayerServer extends Server {
         this.setKey('hand', new Pile());
         this.setKey('played', new Pile());
         this.setKey('tries', 3);
-        this.setKey('eligible', true);
-        this.setKey('lost', false);
         this.setKey('tryCanceled', false);
         this.setKey('name', name);
-        this.setKey('state', Yukine.playerState.NONE);
+        this.setKey('state', Yukine.playerState.ELIGIBLE);
         this.setKey('turn', turn);
         this.setKey('isBot', isBot);
     }
