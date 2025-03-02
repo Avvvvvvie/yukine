@@ -3,28 +3,27 @@ class YukineServer extends Server {
         deck: (pile) => pile.toString(),
         discardPile: (pile) => pile.toString(),
         round: (value) => value.toString(),
-        saveableLoosers: (value) => value.toString(),
-        currentPlayer: (value) => value.toString(),
-        winner: (player) => player.accountId
+        saveableLoosers: (value) => value.toString()
     }
 
-    constructor() {
-        super();
+    constructor(lobby) {
+        super(lobby);
 
-        this.players = steam.players.map(player => new PlayerServer(player.accountId.toString()));
+        let turn = 0;
+        this.players = steam.lobbyServer.getPlayers().map(player => new PlayerServer(this.lobby, player.accountId, player.name, turn++, player.isBot));
 
         this.deck = Pile.createDeck();
         this.deck.shuffle();
         this.distributeCards(8);
         this.writeData('deck');
 
-        this.setKey('currentPlayer', 0);
+        this.setKey('currentPlayer', this.players[0].accountId);
         this.setKey('discardPile', new Pile());
         this.setKey('round', 0);
         this.setKey('saveableLoosers', 1);
 
         for(let player of this.players) {
-            player.updateServer.subscribe(this.checkPlayerActions.bind(this));
+            player.subscribe(this.checkPlayerActions.bind(this));
         }
     }
 
@@ -38,7 +37,16 @@ class YukineServer extends Server {
                     let playerCard = player.hand.cards.find(card => card.value === sentCard.value && card.suit === sentCard.suit);
                     if(playerCard === undefined) break;
                     player.playCard(playerCard);
-                    this.nextTurn();
+
+                    if(player.isBot) {
+                        asyncTimeout(3000).then(() => {
+                            this.nextTurn();
+                        });
+                    } else {
+                        this.nextTurn();
+                    }
+
+
                     break;
                 case 'try':
                     this.useTry(player);
@@ -60,16 +68,20 @@ class YukineServer extends Server {
     }
 
     getTurn() {
-        return this.players[this.currentPlayer];
+        return this.players.find(player => player.accountId === this.currentPlayer);
     }
     nextTurn() {
-        this.currentPlayer = (this.currentPlayer + 1) % this.players.length;
-        if(this.currentPlayer === 0) {
+        let turn = this.players.find(player => player.accountId === this.currentPlayer).turn;
+        turn = turn === this.players.length - 1 ? 0 : turn + 1;
+        let nextPlayer = this.players.find(player => player.turn === turn);
+        this.setKey('currentPlayer', nextPlayer.accountId);
+
+        if(turn === 0) {
             this.findRoundWinner();
             this.findLoosers();
             let totalWinner = this.findTotalWinner();
             if(totalWinner) {
-                this.setKey('winner', totalWinner);
+                totalWinner.setKey('state', Yukine.playerState.TOTALWIN);
                 return;
             }
             this.writeData('currentPlayer');
@@ -121,6 +133,7 @@ class YukineServer extends Server {
     findRoundWinner() {
         let sortedPlayers = this.players.sort((a, b) => a.lastPlayedCard().value - b.lastPlayedCard().value);
         let cardOcurrences = sortedPlayers.reduce((acc, e) => acc.set(e, (acc.get(e) || 0) + 1), new Map());
+
         let streets = [];
         let streetStart = 0;
         let duplicates = 0;
@@ -161,82 +174,78 @@ class YukineServer extends Server {
 
         let streetLengths = streets.map(obj => obj.length);
 
+        const getPlayers = (obj) => sortedPlayers.slice(obj.start, obj.end + 1);
+        const markEligible = (...streets) => {
+            for(let street of streets) {
+                for (let player of getPlayers(street)) {
+                    player.setKey('eligible', true);
+                }
+            }
+        }
+        const setState = (status, players) => {
+            for(let player of players) {
+                player.setState(status);
+            }
+        }
+        // triggers are at least 2 players but length < 3
+        let triggers = streets.filter(obj => obj.players >= 2 && obj.length <= 2);
+        let singles = streets.filter(obj => obj.players === 1);
+        let duplicateStreets = streets.filter(obj => obj.length > 2 && obj.duplicates > 0);
+        let cleanStreets = streets.filter(obj => obj.length > 2 && obj.duplicates === 0);
+
+        // if a card ocurrs 4 times
+        if([...cardOcurrences.values()].includes(4)) {
+            this.handAroundHands();
+            setState(Yukine.playerState.SWAP, sortedPlayers);
+            // triggers and streets are eligible
+            markEligible(triggers);
+            markEligible(streets);
+            return;
+        }
+
         //if highest length is 1
         if(Math.max(...streetLengths) === 1) {
             if(cardOcurrences.get(0) === 1) {
-                // card 0 wins
+                // 0 wins
                 let winner = sortedPlayers.find(player => player.lastPlayedCard().value === 0);
-                // give played cards to winner
-                for(let player of sortedPlayers) {
-                    if(player === winner) continue;
-                    winner.giveCards(player.played);
-                    player.writeData('played');
-                    player.setCardStatus(Yukine.cardStatus.LOOSE);
-                }
+                this.rewardWinner(winner,true, ...sortedPlayers);
                 return;
             } else {
                 // the highest card wins
                 let winner = sortedPlayers[sortedPlayers.length - 1];
                 // give played cards to winner
-                for(let player of sortedPlayers) {
-                    if(player === winner) continue;
-                    winner.giveCards(player.played);
-                    player.writeData('played');
-                    player.setCardStatus(Yukine.cardStatus.LOOSE);
-                }
+                this.rewardWinner(winner, false, ...sortedPlayers);
                 return;
             }
         }
 
-        const getPlayers = (obj) => sortedPlayers.slice(obj.start, obj.end + 1);
-        // triggers are at least 2 players but length < 3
-        let triggers = streets.filter(obj => obj.players >= 2 && obj.length <= 2);
+
 
         // if highest length is 2
         if(Math.max(...streetLengths) === 2) {
             // noone wins
             for(let player of sortedPlayers) {
-                player.setCardStatus(Yukine.cardStatus.NONE);
+                player.setState(Yukine.playerState.NONE);
             }
             // triggers are eligible
-            for(let trigger of triggers) {
-                for(let player of getPlayers(trigger)) {
-                    player.setKey('eligible', true);
-                }
-            }
+            markEligible(triggers);
             return;
         }
-
-        let singles = streets.filter(obj => obj.players === 1);
-        let duplicateStreets = streets.filter(obj => obj.length > 2 && obj.duplicates > 0);
-        let cleanStreets = streets.filter(obj => obj.length > 2 && obj.duplicates === 0);
 
         // if there are streets of length 2
         if(duplicateStreets.length > 0 || triggers.length > 0) {
             // noone wins
-            for(let player of sortedPlayers) {
-                player.setCardStatus(Yukine.cardStatus.NONE);
-            }
+            setState(Yukine.playerState.NONE, sortedPlayers);
             // duplicates are eligible
-            for(let street of duplicateStreets) {
-                for(let player of getPlayers(street)) {
-                    player.setKey('eligible', true);
-                }
-            }
-            // pairs are eligible
-            for(let street of cleanStreets) {
-                for (let player of getPlayers(street)) {
-                    player.setKey('eligible', true);
-                }
-            }
+            markEligible(duplicateStreets);
+            // triggers (pairs) are eligible
+            markEligible(triggers);
             return;
         }
 
         for(let other of cleanStreets) {
             // singles keep their cards
-            for(let player of getPlayers(singles)) {
-                player.setCardStatus(Yukine.cardStatus.KEEP);
-            }
+            setState(Yukine.playerState.KEEP, getPlayers(singles));
             let players = getPlayers(other);
             // winner is the highest card or if it ends with 2 then 2
             let winner;
@@ -245,18 +254,53 @@ class YukineServer extends Server {
             } else {
                 winner = players[players.length - 1];
             }
-            for(let player of players) {
-                if(player === winner) {
-                    player.setCardStatus(Yukine.cardStatus.WIN);
-                } else {
-                    // give played cards to first player
-                    winner.giveCards(player.played);
-                    player.writeData('played');
-                    player.setCardStatus(Yukine.cardStatus.LOOSE);
-                }
-            }
+
+            this.rewardWinner(winner, false, ...players);
         }
     }
+
+    rewardWinner(winner, aced, ...loosers) {
+        let rewardCards = [];
+        for(let player of loosers) {
+            if(player === winner) continue;
+            rewardCards = rewardCards.concat(this.takeLooserCards(player));
+        }
+
+        rewardCards = rewardCards.concat(winner.played.cards);
+        winner.played.clear();
+        winner.writeData('played');
+
+        // remove highest card
+        rewardCards = rewardCards.sort((a, b) => a.value - b.value);
+        let highestCard = rewardCards.pop();
+        this.discardPile.addCard(highestCard);
+
+        // if aced, remove 1 card with value 0
+        if(aced) {
+            let zeroCard = rewardCards.find(card => card.value === 0);
+            rewardCards.splice(rewardCards.indexOf(zeroCard), 1);
+            this.discardPile.addCard(zeroCard);
+        }
+
+        this.writeData('discardPile');
+
+        // give reward cards to winner
+        for(let card of rewardCards) {
+            winner.hand.addCard(card);
+        }
+        winner.writeData('hand');
+
+        winner.setState(Yukine.playerState.WIN);
+    }
+
+    takeLooserCards(player) {
+        let rewardCards = player.played.cards;
+        player.played.clear();
+        player.writeData('played');
+        player.setState(Yukine.playerState.LOOSE);
+        return rewardCards;
+    }
+
     handAroundHands() {
         for(let currentPlayer = 0; currentPlayer < this.players.length; currentPlayer++) {
             let rightPlayer = currentPlayer === this.players.length - 1 ? 0 : currentPlayer;

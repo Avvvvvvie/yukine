@@ -5,10 +5,12 @@ class PlayerServer extends Server {
         tries: (value) => value.toString(),
         eligible: (value) => value.toString(),
         lost: (value) => value.toString(),
-        tryCanceled: (value) => value.toString()
+        tryCanceled: (value) => value.toString(),
+        turn: (value) => value.toString(),
+        isBot: (value) => value.toString(),
     }
-    constructor(accountId) {
-        super(accountId);
+    constructor(lobby, accountId, name, turn, isBot) {
+        super(lobby, accountId);
         this.accountId = accountId;
         this.setKey('hand', new Pile());
         this.setKey('played', new Pile());
@@ -16,11 +18,13 @@ class PlayerServer extends Server {
         this.setKey('eligible', true);
         this.setKey('lost', false);
         this.setKey('tryCanceled', false);
-        this.setKey('name', steam.lobby.getData(accountId.toString()));
-        this.setKey('cardStatus', Yukine.cardStatus.NONE);
+        this.setKey('name', name);
+        this.setKey('state', Yukine.playerState.NONE);
+        this.setKey('turn', turn);
+        this.setKey('isBot', isBot);
     }
-    setCardStatus(status) {
-        this.setKey('cardStatus', status);
+    setState(status) {
+        this.setKey('state', status);
     }
     lastPlayedCard() {
         return this.played.cards[this.played.cards.length - 1];
@@ -38,6 +42,7 @@ class PlayerServer extends Server {
     }
     giveCards(pile) {
         pile.cards.forEach(card => this.hand.addCard(card));
+        pile.clear();
         this.writeData('hand');
     }
     giveCard(card) {
@@ -47,5 +52,11 @@ class PlayerServer extends Server {
     clearPlayed() {
         this.played.clear();
         this.writeData('played');
+    }
+    retakeCards() {
+        this.hand.cards = this.hand.cards.concat(this.played.cards);
+        this.played.clear();
+        this.writeData('played');
+        this.writeData('hand');
     }
 }

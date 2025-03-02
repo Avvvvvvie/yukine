@@ -15,3 +15,40 @@
 #game {
 
 }
+
+[data-state="TOTALWIN"] {
+    background-color: gold;
+}
+
+[data-state="KEEP"] {
+    background-color: blue;
+}
+
+[data-state="LOOSE"] {
+    background-color: red;
+}
+
+[data-state="WIN"] {
+    background-color: green;
+}
+
+[data-state="SWAP"] {
+    background-color: yellow;
+}
+
+[data-state="NONE"] {
+    background-color: grey;
+}
+
+.playerName {
+    position: relative;
+}
+
+[data-turn="true"]::before {
+    content: "⭐";
+    position: absolute;
+    top: 0;
+    right: -30px;
+    font-size: 20px;
+    color: gold;
+}

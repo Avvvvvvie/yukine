@@ -6,27 +6,30 @@
         <meta http-equiv="Content-Security-Policy"
               content="default-src 'self'; script-src 'self'; style-src 'self' 'unsafe-inline'">
         <title>Test steamworks.js</title>
+        <script src="./scripts/Utils.js"></script>
         <script src="./scripts/requirements.js"></script>
         <script src="./scripts/views/Window.js"></script>
         <script src="./scripts/game/ObservableValue.js"></script>
         <script src="./scripts/game/SteamCallbackObservable.js"></script>
         <script src="./scripts/game/Client.js"></script>
         <script src="./scripts/game/Server.js"></script>
-        <script src="./scripts/game/SettingsClient.js"></script>
-        <script src="./scripts/game/SettingsServer.js"></script>
+        <script src="./scripts/game/LobbyClient.js"></script>
+        <script src="./scripts/game/LobbyServer.js"></script>
         <script src="./scripts/game/Steam.js"></script>
         <script src="./scripts/game/Card.js"></script>
         <script src="./scripts/game/Pile.js"></script>
-        <script src="./scripts/game/UpdateClient.js"></script>
-        <script src="./scripts/game/UpdateServer.js"></script>
         <script src="./scripts/game/PlayerClient.js"></script>
         <script src="./scripts/game/PlayerServer.js"></script>
+        <script src="./scripts/game/SteamPlayerClient.js"></script>
         <script src="./scripts/game/Yukine.js"></script>
         <script src="./scripts/game/YukineClient.js"></script>
         <script src="./scripts/game/YukineServer.js"></script>
         <script src="./scripts/views/MenuView.js"></script>
         <script src="./scripts/views/LobbyView.js"></script>
         <script src="./scripts/views/GameView.js"></script>
+        <script src="./scripts/game/BotPlayerClient.js"></script>
+        <script src="./scripts/game/BotYukineClient.js"></script>
+        <script src="./scripts/game/SteamYukineClient.js"></script>
         <script src="./scripts/renderer.js"></script>
         <link rel="stylesheet" href="./styles/reset.css">
         <link rel="stylesheet" href="./styles/main.css">
@@ -50,12 +53,17 @@
             <div id="lobby">
                 LobbyID: <div id="lobbyIDDisplay"></div>
                 <div id="lobbyMembers"></div>
+                <label for="lobbyChatInput">chat</label>
                 <div id="lobbyChat"></div>
+                <input type="text" id="lobbyChatInput" placeholder="type something">
+                <button id="sendChat">send</button>
                 <label for="cardStyleSelect">select card style</label>
                 <select id="cardStyleSelect">
                     <option value="default">Default</option>
                     <option value="ugly">Ugly</option>
                 </select>
+                <label for="botAmount">Bots</label>
+                <input type="number" id="botAmount" value="0">
                 <button id="leaveLobby">leave lobby</button>
                 <button id="startGame">start game</button>
             </div>

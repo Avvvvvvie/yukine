@@ -6,6 +6,9 @@ class ObservableValue {
     subscribe(callback) {
         this.observers.push(callback);
     }
+    unsubscribe(callback) {
+        //this.observers = this.observers.filter(observer => observer !== callback);
+    }
     subscribeRead(callback) {
         callback(this.value, this.value);
         this.subscribe(callback);

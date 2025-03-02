@@ -11,8 +11,17 @@ class LobbyView {
         windows.hideElement(document.getElementById('startGame'));
 
         document.getElementById('cardStyleSelect').addEventListener('change', (event) => {
-            let select = event.target;
-            steam.settingsServer.setKey('cardStyle',select.options[select.selectedIndex].value);
+            steam.lobbyServer.setKey('cardStyle',event.target.value);
+        });
+
+        document.getElementById('botAmount').addEventListener('change', (event) => {
+            steam.lobbyServer.setBotAmount(parseInt(event.target.value));
+        });
+
+        document.getElementById('sendChat').addEventListener('click', () => {
+            let chatInput = document.getElementById('lobbyChatInput');
+            steam.lobbyClient.addChatMessage(chatInput.value);
+            chatInput.value = '';
         });
     }
 
@@ -20,11 +29,14 @@ class LobbyView {
         windows.setWindow(windows.windows.lobby);
         document.getElementById('lobbyIDDisplay').innerText = steam.lobbyIDToCode(lobby.id);
 
-        document.getElementById('lobbyChat').innerText = lobby.getData('chat') || ""
-        let players = lobby.getMembers();
-        document.getElementById('lobbyMembers').innerText = "Members: " + players.map(player => player.accountId).join(', ');
-        console.log(players);
-        console.log("ishost", steam.isHost);
+        steam.lobbyClient.chat.subscribeRead((oldValue, newValue) => {
+            document.getElementById('lobbyChat').innerText = newValue;
+        });
+
+        let players = steam.lobbyClient.getPlayers();
+        players.subscribeRead((oldValue, newValue) => {
+            document.getElementById('lobbyMembers').innerText = "Members: " + newValue.map(member => member.name).join(', ');
+        });
         if(steam.isHost) {
             windows.showElement(document.getElementById('startGame'));
         }

@@ -8,11 +8,18 @@ class Yukine {
         updateTarget: "----",
         path: "aaaa"
     }
-    static cardStatus = {
+    static playerState = {
         NONE: "NONE",
         LOOSE: "LOOSE",
         WIN: "WIN",
         KEEP: "KEEP",
-        SWAP: "SWAP"
+        SWAP: "SWAP",
+        TOTALWIN: "TOTALWIN"
+    }
+    static gameState = {
+        LOBBY: "LOBBY",
+        ONGOING: "ONGOING",
+        ENDGAME: "ENDGAME",
+        OVER: "OVER"
     }
 }

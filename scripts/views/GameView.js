@@ -1,42 +1,64 @@
 class GameView {
     startGame() {
-        windows.setWindow(windows.windows.game);
-        steam.startGame();
-
-        gameView.loadPlayers();
-        gameView.loadPlayerHand();
+        steam.lobbyServer.startGame();
+        const loadGame = (oldValue, newValue) => {
+            if(newValue === Yukine.gameState.ONGOING) {
+                windows.setWindow(windows.windows.game);
+                gameView.loadPlayers();
+                gameView.loadPlayerHand();
+                steam.lobbyClient.gameState.unsubscribe(loadGame);
+            }
+        }
+        steam.lobbyClient.gameState.subscribe(loadGame);
     }
     loadPlayers() {
         let playerList = document.getElementById('playerList');
         playerList.innerHTML = '';
-        for(let player of steam.yukineClient.players) {
-            let playerElement = document.createElement('div');
-            playerElement.classList.add('row');
-            let playerName = document.createElement('div');
-            playerList.appendChild(playerElement);
-            playerElement.appendChild(playerName);
-            player.name.subscribeRead((oldValue, newValue) => {
-                playerName.innerText = newValue;
-            });
-            let playedCards = document.createElement('div');
-            playedCards.classList.add('row');
-            playerElement.appendChild(playedCards);
-            this.placePile(player.played, playedCards);
+        for(let player of steam.lobbyClient.yukineClient.players) {
+            playerList.appendChild(this.loadPlayer(player));
         }
+    }
+
+    loadPlayer(player) {
+        let playerElement = createDiv('row', 'player');
+        let playerName = createDiv('playerName');
+        playerElement.appendChild(playerName);
+        player.name.subscribeRead((oldValue, newValue) => {
+            playerName.innerText = newValue;
+        });
+        player.state.subscribeRead((oldValue, newValue) => {
+            playerName.setAttribute('data-state', newValue);
+        });
+        steam.lobbyClient.yukineClient.currentPlayer.subscribe((oldValue, newValue) => {
+            if(player.accountId === newValue) {
+                playerName.setAttribute('data-turn', 'true');
+            } else {
+                playerName.removeAttribute('data-turn');
+            }
+        });
+        let playedCards = createDiv('cards', 'row');
+        playerElement.appendChild(playedCards);
+        this.placePile(player.played, playedCards);
+        player.eligible.subscribeRead((oldValue, newValue) => {
+            if(playedCards.children.length === 0) return;
+            if(newValue) {
+                playedCards.children[playedCards.children.length - 1].setAttribute('data-eligible', newValue);
+            } else {
+                playedCards.children[playedCards.children.length - 1].removeAttribute('data-eligible');
+            }
+        });
+        return playerElement;
     }
 
     placePile(pile, container, onClick = null) {
         pile.subscribeRead((oldValue, newValue) => {
             container.innerHTML = '';
             for(let card of pile.value.cards) {
-                let cardElement = document.createElement('div');
-                cardElement.classList.add('card');
-                if(steam.settings.cardStyle.value) cardElement.classList.add(steam.settings.cardStyle.value);
+                let cardElement = createDiv('card', steam.lobbyClient.cardStyle.value);
                 cardElement.setAttribute('data-value', card.value);
                 cardElement.setAttribute('data-suit', card.suit);
                 cardElement.innerText = card.valueString + ' ' + card.suitString;
                 if(onClick) cardElement.addEventListener('click', () => {
-                    console.log('card clicked', card);
                     onClick(card);
                 });
                 container.appendChild(cardElement);
@@ -46,8 +68,8 @@ class GameView {
 
     loadPlayerHand() {
         let playerHand = document.getElementById('playerHand');
-        this.placePile(steam.yukineClient.gamePlayer.hand, playerHand, (card) => {
-            steam.yukineClient.playCard(card);
+        this.placePile(steam.lobbyClient.yukineClient.gamePlayer.hand, playerHand, (card) => {
+            steam.lobbyClient.yukineClient.playCard(card);
         });
     }
 }

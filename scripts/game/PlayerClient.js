@@ -5,10 +5,12 @@ class PlayerClient extends Client {
         tries: (value) => parseInt(value),
         eligible: (value) => value === "true",
         lost: (value) => value === "true",
-        tryCanceled: (value) => value === "true"
+        tryCanceled: (value) => value === "true",
+        turn: (value) => parseInt(value),
+        isBot: (value) => value === "true",
     }
-    constructor(accountId) {
-        super(accountId);
+    constructor(lobby, accountId) {
+        super(lobby, accountId);
         this.accountId = accountId;
         this.hand = new ObservableValue(new Pile());
         this.played = new ObservableValue(new Pile());
@@ -17,12 +19,8 @@ class PlayerClient extends Client {
         this.lost = new ObservableValue();
         this.tryCanceled = new ObservableValue();
         this.name = new ObservableValue();
-        this.roundWinner = new ObservableValue();
-        this.loosesCards = new ObservableValue();
-        this.cardStatus = new ObservableValue();
-
-        this.name.setValue(steam.lobby.getData(accountId.toString()));
-
-        this.startSubscription();
+        this.state = new ObservableValue();
+        this.turn = new ObservableValue();
+        this.isBot = new ObservableValue();
     }
 }
