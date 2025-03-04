@@ -3,24 +3,21 @@ class LobbyClient extends Client {
     read = {
         botAmount: (value) => parseInt(value),
         players: (value) => JSON.parse(value),
+        cardStyle: (value) => value,
+        chat: (value) => value,
+        host: (value) => value,
+        state: (value) => value
     }
     constructor(lobby) {
         super(lobby, 'settings');
+        this.initObservables();
 
-        this.botAmount = new ObservableValue();
-        this.cardStyle = new ObservableValue();
-        this.gameState = new ObservableValue();
-        this.players = new ObservableValue([]);
-        this.chat = new ObservableValue('');
-        this.host = new ObservableValue();
-
-        this.gameState.subscribe((oldValue, newValue) => {
-            if(newValue === Yukine.gameState.ONGOING) {
+        this.state.subscribe((oldValue, newValue) => {
+            if(newValue === Yukine.lobbyState.INGAME) {
                 this.yukineClient = new SteamYukineClient(lobby);
+                gameView.showGame();
             }
         });
-
-        this.startSubscription();
     }
 
     getPlayers() {

@@ -17,10 +17,27 @@ class Client {
         });
 
     }
+
+    initObservables() {
+        for(let key in this.read) {
+            this[key] = new ObservableValue();
+        }
+        this.readAll();
+        this.startSubscription();
+    }
+    readAll() {
+        for(let key in this.read) {
+            this.updateKey(key, this.lobby.getData(this.path + Yukine.delimiters.path + key))
+        }
+    }
+
     startSubscription() {
         this.subscribe(this.updateKey.bind(this));
     }
     updateKey(key, value) {
+        if(this.read[key] === undefined) {
+            console.error("Key " + key + " is not defined in class " + this.constructor.name);
+        }
         this[key].setValue(this.read[key] ? this.read[key](value) : value);
         console.log(key + ": " + value);
     }

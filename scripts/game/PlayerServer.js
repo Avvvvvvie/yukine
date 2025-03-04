@@ -6,6 +6,7 @@ class PlayerServer extends Server {
         tryCanceled: (value) => value.toString(),
         turn: (value) => value.toString(),
         isBot: (value) => value.toString(),
+        eligible: (value) => value.toString()
     }
     constructor(lobby, accountId, name, turn, isBot) {
         super(lobby, accountId);
@@ -15,12 +16,16 @@ class PlayerServer extends Server {
         this.setKey('tries', 3);
         this.setKey('tryCanceled', false);
         this.setKey('name', name);
-        this.setKey('state', Yukine.playerState.ELIGIBLE);
+        this.setEligible(true);
+        this.setKey('state', Yukine.playerState.NONE);
         this.setKey('turn', turn);
         this.setKey('isBot', isBot);
     }
     setState(status) {
         this.setKey('state', status);
+    }
+    setEligible(value) {
+        this.setKey('eligible', value);
     }
     lastPlayedCard() {
         return this.played.cards[this.played.cards.length - 1];

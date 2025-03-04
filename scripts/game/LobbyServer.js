@@ -6,15 +6,15 @@ class LobbyServer extends Server {
 
     constructor(lobby) {
         super(lobby, 'settings');
-        this.players = [];
         this.bots = [];
-        this.chat = '';
         this.botClients = [];
 
-        this.setKey('gameState', Yukine.gameState.LOBBY);
-        this.setKey('cardStyle', 'default');
         this.setKey('botAmount', 0);
+        this.setKey('players', []);
+        this.setKey('cardStyle', 'default');
+        this.setKey('chat', ' ');
         this.setKey('host', steam.playerAccountId);
+        this.setKey('state', Yukine.lobbyState.WAITING);
 
         this.subscribe((player, key, value) => {
             switch (key) {
@@ -37,7 +37,7 @@ class LobbyServer extends Server {
 
     startGame() {
         this.yukineServer = new YukineServer(this.lobby);
-        this.setKey('gameState', Yukine.gameState.ONGOING);
+        this.setKey('state', Yukine.lobbyState.INGAME);
         for(let bot of this.bots) {
             this.botClients.push(new BotYukineClient(this.lobby, bot.name));
         }

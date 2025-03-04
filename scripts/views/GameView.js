@@ -1,21 +1,19 @@
 class GameView {
-    startGame() {
-        steam.lobbyServer.startGame();
-        const loadGame = (oldValue, newValue) => {
-            if(newValue === Yukine.gameState.ONGOING) {
-                windows.setWindow(windows.windows.game);
-                steam.lobbyClient.yukineClient.gameInfo.subscribeRead((oldValue, newValue) => {
-                    document.getElementById('gameInfo').innerText = newValue;
-                });
-                steam.lobbyClient.yukineClient.round.subscribeRead((oldValue, newValue) => {
-                    document.getElementById('round').innerText = 'Round ' + newValue;
-                });
-                gameView.loadPlayers();
-                gameView.loadPlayerHand();
-                steam.lobbyClient.gameState.unsubscribe(loadGame);
+    showGame() {
+        windows.setWindow(windows.windows.game);
+        steam.lobbyClient.yukineClient.info.subscribe((oldValue, newValue) => {
+            document.getElementById('gameInfo').innerText = newValue;
+        });
+        steam.lobbyClient.yukineClient.round.subscribe((oldValue, newValue) => {
+            document.getElementById('round').innerText = 'Round ' + newValue;
+        });
+        steam.lobbyClient.yukineClient.state.subscribe((oldValue, newValue) => {
+            if(newValue === Yukine.gameState.OVER) {
+                alert('Game ended');
             }
-        }
-        steam.lobbyClient.gameState.subscribe(loadGame);
+        });
+        gameView.loadPlayers();
+        gameView.loadPlayerHand();
     }
     loadPlayers() {
         let playerList = document.getElementById('playerList');
@@ -30,6 +28,9 @@ class GameView {
         let playerName = createDiv('playerName');
         playerElement.appendChild(playerName);
 
+        let handAmount = createDiv('handAmount');
+        playerName.appendChild(handAmount);
+
         let playedCards = createDiv('cards', 'row');
         playerElement.appendChild(playedCards);
         this.placePile(player.played, playedCards);
@@ -37,15 +38,18 @@ class GameView {
         player.name.subscribeRead((oldValue, newValue) => {
             playerName.innerText = newValue;
         });
+        player.hand.subscribeRead((oldValue, newValue) => {
+            handAmount.innerText = '(' + newValue.cards.length + ')';
+        });
         player.state.subscribeRead((oldValue, newValue) => {
             playerName.setAttribute('data-state', newValue);
-            if(newValue === Yukine.playerState.ELIGIBLE) {
-                if(playedCards.children.length === 0) return;
-                if(newValue) {
-                    playedCards.children[playedCards.children.length - 1].setAttribute('data-eligible', newValue);
-                } else {
-                    playedCards.children[playedCards.children.length - 1].removeAttribute('data-eligible');
-                }
+        });
+        player.eligible.subscribeRead((oldValue, newValue) => {
+            if(playedCards.children.length === 0) return;
+            if(newValue) {
+                playedCards.children[playedCards.children.length - 1].setAttribute('data-eligible', newValue);
+            } else {
+                playedCards.children[playedCards.children.length - 1].removeAttribute('data-eligible');
             }
         });
         steam.lobbyClient.yukineClient.currentPlayer.subscribe((oldValue, newValue) => {

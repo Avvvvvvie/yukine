@@ -15,20 +15,22 @@ class YukineServer extends Server {
         this.deck = Pile.createDeck();
         this.deck.shuffle();
         this.distributeCards(8);
-        this.writeData('deck');
 
-        this.setKey('currentPlayer', this.players[0].accountId);
+        this.writeData('deck');
         this.setKey('discardPile', new Pile());
         this.setKey('round', 0);
         this.setKey('saveableLoosers', 1);
+        this.setKey('currentPlayer', this.players[0].accountId);
+        this.setKey('state', Yukine.gameState.ONGOING);
 
         for(let player of this.players) {
             player.subscribe(this.checkPlayerActions.bind(this));
+            player.setEligible(true);
         }
     }
 
     moderate(message) {
-        this.setKey('gameInfo', message);
+        this.setKey('info', message);
     }
 
     checkPlayerActions(playerId, action, value) {
@@ -41,14 +43,11 @@ class YukineServer extends Server {
                     let playerCard = player.hand.cards.find(card => card.value === sentCard.value && card.suit === sentCard.suit);
                     if(playerCard === undefined) break;
                     player.playCard(playerCard);
+                    player.setEligible(false);
 
-                    if(player.isBot) {
-                        asyncTimeout(3000).then(() => {
-                            this.nextTurn();
-                        });
-                    } else {
+                    asyncTimeout(2000).then(() => {
                         this.nextTurn();
-                    }
+                    });
 
                     this.moderate(player.name + ' played ' + playerCard.valueString + ' ' + playerCard.suitString);
                     break;
@@ -74,58 +73,118 @@ class YukineServer extends Server {
     getTurn() {
         return this.players.find(player => player.accountId === this.currentPlayer);
     }
-    nextTurn() {
-        let turn = this.players.find(player => player.accountId === this.currentPlayer).turn;
-        let nextPlayer;
-        do {
-            turn = turn === this.players.length - 1 ? 0 : turn + 1;
-            nextPlayer = this.players.find(player => player.turn === turn);
-        } while(nextPlayer.state !== Yukine.playerState.ELIGIBLE && nextPlayer.state !== Yukine.playerState.WIN && nextPlayer.state !== Yukine.playerState.SWAP);
-
-        this.setKey('currentPlayer', nextPlayer.accountId);
-
-        if(turn === 0) {
-            this.findRoundWinner();
-            this.findLoosers();
-            let totalWinner = this.findTotalWinner();
-            if(totalWinner) {
-                totalWinner.setKey('state', Yukine.playerState.TOTALWIN);
-                return;
+    nextTurn(recursion = 0) {
+        if(recursion > this.players.length) {
+            this.handAroundHands();
+            for(let player of this.players) {
+                player.setState(Yukine.playerState.SWAP);
+                this.moderate('Recursion: Everyone swaps hands');
+                asyncTimeout(3000).then(() => {
+                    this.nextTurn();
+                });
             }
-            this.writeData('currentPlayer');
-            this.setKey('round',this.round + 1);
-            this.unCancelPlayers();
+        } else {
+            let lastTurn = this.getTurn().turn;
+            let eligiblePlayers = this.players.filter(player => player.eligible === true);
+            if(eligiblePlayers.length === 0) {
+                this.findRoundWinner();
+                this.updateGameState();
+                if(this.state !== Yukine.gameState.OVER) {
+                    this.setKey('round',this.round + 1);
+                    this.unCancelPlayers();
+                    // the winner of the round starts the next round
+                    let nextPlayer = this.players.find(player => player.state === Yukine.playerState.WIN);
+                    if(nextPlayer) {
+                        this.setNextPlayer(nextPlayer);
+                    } else {
+                        // find player after last player
+                        let potentialPlayers = this.players.filter(player => player.eligible);
+                        if(potentialPlayers.length) {
+                            let potentialPlayersAfter = potentialPlayers.filter(player => player.turn > lastTurn)
+                            if(potentialPlayersAfter.length === 0) {
+                                this.setNextPlayer(potentialPlayers[0], recursion);
+                            } else {
+                                this.setNextPlayer(potentialPlayersAfter[0], recursion);
+                            }
+                        } else {
+                            console.log("no potential players?");
+                        }
+                    }
+                }
+            } else {
+                let potentialPlayersAfter = eligiblePlayers.filter(player => player.turn > lastTurn)
+                if(potentialPlayersAfter.length === 0) {
+                    this.setNextPlayer(eligiblePlayers[0], recursion);
+                } else {
+                    this.setNextPlayer(potentialPlayersAfter[0], recursion);
+                }
+            }
         }
+    }
+
+    setNextPlayer(player, recursion = 0) {
+        if(player.hand.cards.length === 0) {
+            this.nextTurn(recursion + 1);
+        } else {
+            asyncTimeout(1000).then(() => {
+                this.setKey('currentPlayer', player.accountId);
+            });
+        }
+    }
+
+    updateGameState() {
+        let playerCount = 0;
+        for(let player of this.players) {
+            if(player.state !== Yukine.playerState.TOTALLOOSE) {
+                playerCount++;
+            }
+        }
+        if(this.players.length > 2 && playerCount === 2) {
+            this.setKey('state', Yukine.gameState.ENDGAME);
+            this.startEndGame();
+        } else if(playerCount === 1) {
+            let winner = this.players.find(player => player.state !== Yukine.playerState.TOTALLOOSE);
+            winner.setKey('state', Yukine.playerState.TOTALWIN);
+            this.setKey('state', Yukine.gameState.OVER);
+        }
+    }
+
+    startEndGame() {
+        let endGamePlayers = this.players.filter(player => player.state !== Yukine.playerState.TOTALLOOSE).sort((a, b) => a.hand.size() - b.hand.size());
+        let cardAmount = endGamePlayers[0].hand.size();
+        // remove random cards from players with more cards
+        let ridCards = 0;
+        while(endGamePlayers[1].hand.size() > cardAmount) {
+            ridCards++;
+            let player = endGamePlayers[1];
+            let card = player.hand.cards[Math.floor(Math.random() * player.hand.size())];
+            player.hand.cards.splice(player.hand.cards.indexOf(card), 1);
+            this.discardPile.addCard(card);
+
+            this.writeData('discardPile');
+            player.writeData('hand');
+        }
+        this.moderate('Endgame started, ' + endGamePlayers[1].name + ' had to get rid of ' + ridCards +' cards');
+        endGamePlayers[0].setEligible(true);
+        endGamePlayers[1].setEligible(true);
     }
 
     findLoosers() {
         for(let player of this.players) {
+            if(player.state === Yukine.playerState.LOOSE) continue;
             if(player.hand.size() === 0) {
                 if(this.saveableLoosers > 0) {
                     this.setKey('saveableLoosers', this.saveableLoosers - 1);
                     this.giveCardToPlayer(player);
                 } else {
                     player.setState(Yukine.playerState.TOTALLOOSE);
+                    player.setEligible(false);
                 }
             }
         }
     }
-
-    findTotalWinner() {
-        let notLostCount = 0;
-        let winner = null;
-        for(let player of this.players) {
-            if(player.state !== Yukine.playerState.TOTALLOOSE) {
-                notLostCount++;
-                winner = player;
-            }
-        }
-        if(notLostCount === 1) {
-            return winner;
-        }
-    }
     findRoundWinner() {
-        let sortedPlayers = this.players.sort((a, b) => a.lastPlayedCard().value - b.lastPlayedCard().value);
+        let sortedPlayers = this.players.filter(player => player.state !== Yukine.playerState.TOTALLOOSE).sort((a, b) => a.lastPlayedCard().value - b.lastPlayedCard().value);
         let sortedPlayerCards = sortedPlayers.map(player => player.lastPlayedCard().value);
         let cardOcurrences = sortedPlayerCards.reduce((acc, e) => acc.set(e, (acc.get(e) || 0) + 1), new Map());
 
@@ -178,7 +237,14 @@ class YukineServer extends Server {
         const markEligible = (...streets) => {
             for(let street of streets) {
                 for (let player of getPlayers(street)) {
-                    player.setState(Yukine.playerState.ELIGIBLE);
+                    player.setEligible(true);
+                }
+            }
+        }
+        const markUnEligible = (...streets) => {
+            for(let street of streets) {
+                for (let player of getPlayers(street)) {
+                    player.setEligible(false);
                 }
             }
         }
@@ -200,7 +266,8 @@ class YukineServer extends Server {
             // triggers and streets are eligible
             markEligible(...triggers);
             markEligible(...streets);
-
+            // singles are uneligible
+            markUnEligible(...singles);
             this.moderate("4 of a kind, everyone swaps hands");
             return;
         }
@@ -227,33 +294,46 @@ class YukineServer extends Server {
         // if there are triggers or duplicates
         if(triggers.length > 0 || duplicateStreets.length > 0) {
             // noone wins
-            setState(Yukine.playerState.NONE, getPlayers(singles));
+            setState(Yukine.playerState.NONE, sortedPlayers);
             // duplicates are eligible
             markEligible(...duplicateStreets);
             // triggers (pairs) are eligible
             markEligible(...triggers);
+            // singles are uneligible
+            markUnEligible(...singles);
             this.moderate('The round continues');
             return;
         }
 
         // if there are no triggers or duplicates
         for(let other of cleanStreets) {
-            // singles keep their cards
-            setState(Yukine.playerState.KEEP, getPlayers(singles));
-
             // winner is the highest card or if it ends with 2 then 2
             let winner;
             let players = getPlayers(other);
             if(other[other.length - 1] === 2) {
                 winner = players.find(player => player.lastPlayedCard().value === 2);
             } else {
-                winner = players[players.length - 1];
+                winner = players[0];
             }
+
+            winner.setState(Yukine.playerState.WIN);
+            winner.played.clear();
+            winner.writeData('played');
+            setState(Yukine.playerState.LOOSE, players.filter(player => player !== winner));
 
             this.rewardWinner(winner, false, ...players);
 
             this.moderate(winner.name + ' won with a street of ' + other.length + ' cards.');
         }
+        // singles keep their cards
+        for(let single of singles) {
+            for(let player of getPlayers(single)) {
+                player.setState(Yukine.playerState.KEEP);
+                player.retakeCards();
+            }
+        }
+        // everyone is eligible
+        markEligible(sortedPlayers);
     }
 
     rewardWinner(winner, aced, ...loosers) {
@@ -261,6 +341,8 @@ class YukineServer extends Server {
         for(let player of loosers) {
             if(player === winner) continue;
             rewardCards = rewardCards.concat(this.takeLooserCards(player));
+            player.setState(Yukine.playerState.LOOSE);
+            player.setEligible(true);
         }
 
         rewardCards = rewardCards.concat(winner.played.cards);
@@ -287,7 +369,11 @@ class YukineServer extends Server {
         }
         winner.writeData('hand');
 
+        winner.setEligible(true);
+
         winner.setState(Yukine.playerState.WIN);
+
+        this.findLoosers();
     }
 
     takeLooserCards(player) {
@@ -300,8 +386,9 @@ class YukineServer extends Server {
 
     handAroundHands() {
         for(let currentPlayer = 0; currentPlayer < this.players.length; currentPlayer++) {
-            let rightPlayer = currentPlayer === this.players.length - 1 ? 0 : currentPlayer;
+            let rightPlayer = currentPlayer === this.players.length - 1 ? 0 : currentPlayer + 1;
             this.players[currentPlayer].hand = this.players[rightPlayer].hand;
+            this.players[currentPlayer].writeData('hand');
         }
     }
 

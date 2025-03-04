@@ -28,10 +28,6 @@
     background-color: blue;
 }
 
-[data-state="ELIGIBE"] {
-    background-color: #00ffff;
-}
-
 [data-state="LOOSE"] {
     background-color: red;
 }
@@ -48,7 +44,7 @@
     background-color: grey;
 }
 
-[data-eligible="ELIGIBLE"] {
+[data-eligible="true"] {
     background-color: #4bbd3e;
 }
 

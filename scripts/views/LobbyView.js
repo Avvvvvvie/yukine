@@ -1,10 +1,8 @@
 class LobbyView {
     DOMContentLoaded() {
-        document.getElementById('createLobby').addEventListener('click', this.createLobby);
-
         document.getElementById('leaveLobby').addEventListener('click', this.leaveLobby);
 
-        document.getElementById('startGame').addEventListener('click', gameView.startGame);
+        document.getElementById('startGame').addEventListener('click', steam.startGame);
 
         document.getElementById('name').innerText = steam.playerName;
 
@@ -40,22 +38,6 @@ class LobbyView {
         if(steam.isHost) {
             windows.showElement(document.getElementById('startGame'));
         }
-    }
-
-    createLobby() {
-        steam.createLobby(0, 8).then((lobby)=>{
-            lobbyView.showLobby(lobby);
-        });
-    }
-
-    joinLobby() {
-        const lobbyIDString = document.getElementById('lobbyID').value;
-        if(!lobbyIDString) return;
-        const lobbyID = steam.CodeToLobbyID(lobbyIDString);
-
-        steam.joinLobby(lobbyID).then((lobby)=> {
-            lobbyView.showLobby(lobby);
-        });
     }
 
     leaveLobby() {

@@ -18,6 +18,7 @@ class Steam  {
             steam.lobbyServer.setKey('host', this.playerAccountId);
         }
         steam.lobbyClient.joinLobby();
+        lobbyView.showLobby(lobby);
     }
 
     createLobby(type, maxMembers) {
@@ -43,6 +44,9 @@ class Steam  {
             steam.isHost = false;
             steam.steamCallback.unsubscribeAll();
         }
+    }
+    startGame() {
+        steam.lobbyServer.startGame();
     }
     openGamePage() {
         Steam.client.overlay.activateToWebPage('https://www.example.com/');

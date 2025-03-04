@@ -3,18 +3,14 @@ class YukineClient extends Client {
         deck: (value) => Pile.fromString(value),
         discardPile: (value) => Pile.fromString(value),
         round: (value) => parseInt(value),
-        saveableLoosers: (value) => parseInt(value)
+        saveableLoosers: (value) => parseInt(value),
+        currentPlayer: value => value,
+        state: value => value,
+        info: value => value
     }
     constructor(lobby) {
         super(lobby);
-
-        this.currentPlayer = new ObservableValue();
-        this.deck = new ObservableValue(new Pile());
-        this.discardPile = new ObservableValue(new Pile());
-        this.round = new ObservableValue();
-        this.saveableLoosers = new ObservableValue();
-        this.gameState = new ObservableValue();
-        this.gameInfo = new ObservableValue('');
+        this.initObservables();
     }
 
     initPlayers() {

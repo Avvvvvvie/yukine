@@ -6,7 +6,7 @@ class Yukine {
         update: ":U:",
         player: "::",
         updateTarget: "----",
-        path: "aaaa"
+        path: "...."
     }
     static playerState = {
         NONE: "NONE",
@@ -18,8 +18,11 @@ class Yukine {
         TOTALLOOSE: "TOTALLOOSE",
         ELIGIBLE: "ELIGIBLE",
     }
+    static lobbyState = {
+        INGAME: "INGAME",
+        WAITING: "WAITING"
+    }
     static gameState = {
-        LOBBY: "LOBBY",
         ONGOING: "ONGOING",
         ENDGAME: "ENDGAME",
         OVER: "OVER"
