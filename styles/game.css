@@ -1,7 +1,8 @@
+#game {
+    --card-height: 5rem;
+}
+
 .card {
-    width: 50px;
-    height: 50px;
-    background-color: #f0f0f0;
     border-radius: 5px;
     display: flex;
     justify-content: center;
@@ -10,53 +11,321 @@
     font-weight: bold;
     color: #333;
     cursor: pointer;
-    transition: background-color 0.3s;
+    width: calc(var(--card-height)* 0.7723);
+    height: var(--card-height);
+    background-size: contain;
+    background-repeat: no-repeat;
+    transition: background-color 0.3s
 }
-#game {
+
+#gameInfo {
+    min-height: 1.15rem;
+}
+
+#playerHand .card {
+    transition: background-color 0.3s, transform 0.1s;
+}
+
+#playerHand .card:hover {
+    transform: scale(1.2);
+}
+
+.playerInfo {
+    display: flex;
+    flex-direction: row;
+    flex-wrap: wrap;
+    position: relative;
+    padding: 0.5rem; /*calc(2rem + .275rem*2)*/
+    align-items: end;
+}
+
+.playerName {
+    width: 100%;
+    position: relative;
+}
+
+.handAmount {
+    margin-top: 0.5rem;
+    width: 1.5rem;
+    height: 1.5rem;
+    background-position: bottom left;
+    background-size: contain;
+    background-repeat: no-repeat;
+}
+
+.playerState {
+    background-position: bottom left;
+    background-size: contain;
+    background-repeat: no-repeat;
+    width: 1.5rem;
+    height: 1.5rem;
+}
+
+.handAmount[data-amount="1"] {
+    background-image: url(../assets/cards/pile1.svg);
+}
+
+.handAmount[data-amount="2"] {
+    background-image: url(../assets/cards/pile2.svg);
+}
+
+.handAmount[data-amount="3"] {
+    background-image: url(../assets/cards/pile3.svg);
+}
+
+#playerList {
+    display: grid;
+    grid-template-columns: 1fr 4fr;
+    margin: 1.5rem -0.5rem 1.5rem -0.5rem;
+    grid-auto-rows: var(--card-height);
+    grid-gap: 0.5rem;
+}
+
+[data-turn="true"]::after {
+    content: "⭐";
+    position: absolute;
+    top: .65rem;
+    left: -22px;
+    font-size: 20px;
+    color: gold;
+}
+
+[data-eligible="true"] {
+    background-color: #ffd630;
+}
+
+[data-state="NONE"] {
 
 }
 
 [data-state="TOTALWIN"] {
-    background-color: gold;
+    background-image: url("../assets/cards/totalwin.svg");
 }
 
 [data-state="TOTALLOOSE"] {
-    background-color: darkred;
+    background-image: url("../assets/cards/totalloose.svg");
 }
 
 [data-state="KEEP"] {
-    background-color: blue;
+
 }
 
 [data-state="LOOSE"] {
-    background-color: red;
+    background-image: url("../assets/cards/loose.svg");
 }
 
 [data-state="WIN"] {
-    background-color: green;
+    background-image: url("../assets/cards/win.svg");
 }
 
 [data-state="SWAP"] {
-    background-color: yellow;
+    background-image: url("../assets/cards/swap.svg");
 }
 
-[data-state="NONE"] {
-    background-color: grey;
+.card[data-value="2"][data-suit="0"] {
+    background-image: url(../assets/cards/2.svg), url(../assets/cards/H2.svg);
 }
 
-[data-eligible="true"] {
-    background-color: #4bbd3e;
+.card[data-value="3"][data-suit="0"] {
+    background-image: url(../assets/cards/3.svg), url(../assets/cards/H3.svg);
 }
 
-.playerName {
-    position: relative;
+.card[data-value="4"][data-suit="0"] {
+    background-image: url(../assets/cards/4.svg), url(../assets/cards/H4.svg);
 }
 
-[data-turn="true"]::before {
-    content: "⭐";
-    position: absolute;
-    top: 0;
-    right: -30px;
-    font-size: 20px;
-    color: gold;
+.card[data-value="5"][data-suit="0"] {
+    background-image: url(../assets/cards/5.svg), url(../assets/cards/H5.svg);
+}
+
+.card[data-value="6"][data-suit="0"] {
+    background-image: url(../assets/cards/6.svg), url(../assets/cards/H6.svg);
+}
+
+.card[data-value="7"][data-suit="0"] {
+    background-image: url(../assets/cards/7.svg), url(../assets/cards/H7.svg);
+}
+
+.card[data-value="8"][data-suit="0"] {
+    background-image: url(../assets/cards/8.svg), url(../assets/cards/H8.svg);
+}
+
+.card[data-value="9"][data-suit="0"] {
+    background-image: url(../assets/cards/9.svg), url(../assets/cards/H9.svg);
+}
+
+.card[data-value="10"][data-suit="0"] {
+    background-image: url(../assets/cards/10.svg), url(../assets/cards/H10.svg);
+}
+
+.card[data-value="11"][data-suit="0"] {
+    background-image: url(../assets/cards/J.svg), url(../assets/cards/HJ.svg);
+}
+
+.card[data-value="12"][data-suit="0"] {
+    background-image: url(../assets/cards/Q.svg), url(../assets/cards/HQ.svg);
+}
+
+.card[data-value="13"][data-suit="0"] {
+    background-image: url(../assets/cards/K.svg), url(../assets/cards/HK.svg);
+}
+
+.card[data-value="14"][data-suit="0"] {
+    background-image: url(../assets/cards/A.svg), url(../assets/cards/HA.svg);
+}
+
+.card[data-value="2"][data-suit="1"] {
+    background-image: url(../assets/cards/2.svg), url(../assets/cards/D2.svg);
+}
+
+.card[data-value="3"][data-suit="1"] {
+    background-image: url(../assets/cards/3.svg), url(../assets/cards/D3.svg);
+}
+
+.card[data-value="4"][data-suit="1"] {
+    background-image: url(../assets/cards/4.svg), url(../assets/cards/D4.svg);
+}
+
+.card[data-value="5"][data-suit="1"] {
+    background-image: url(../assets/cards/5.svg), url(../assets/cards/D5.svg);
+}
+
+.card[data-value="6"][data-suit="1"] {
+    background-image: url(../assets/cards/6.svg), url(../assets/cards/D6.svg);
+}
+
+.card[data-value="7"][data-suit="1"] {
+    background-image: url(../assets/cards/7.svg), url(../assets/cards/D7.svg);
+}
+
+.card[data-value="8"][data-suit="1"] {
+    background-image: url(../assets/cards/8.svg), url(../assets/cards/D8.svg);
+}
+
+.card[data-value="9"][data-suit="1"] {
+    background-image: url(../assets/cards/9.svg), url(../assets/cards/D9.svg);
+}
+
+.card[data-value="10"][data-suit="1"] {
+    background-image: url(../assets/cards/10.svg), url(../assets/cards/D10.svg);
+}
+
+.card[data-value="11"][data-suit="1"] {
+    background-image: url(../assets/cards/J.svg), url(../assets/cards/DJ.svg);
+}
+
+.card[data-value="12"][data-suit="1"] {
+    background-image: url(../assets/cards/Q.svg), url(../assets/cards/DQ.svg);
+}
+
+.card[data-value="13"][data-suit="1"] {
+    background-image: url(../assets/cards/K.svg), url(../assets/cards/DK.svg);
+}
+
+.card[data-value="14"][data-suit="1"] {
+    background-image: url(../assets/cards/A.svg), url(../assets/cards/DA.svg);
+}
+
+.card[data-value="2"][data-suit="2"] {
+    background-image: url(../assets/cards/2.svg), url(../assets/cards/C2.svg);
+}
+
+.card[data-value="3"][data-suit="2"] {
+    background-image: url(../assets/cards/3.svg), url(../assets/cards/C3.svg);
+}
+
+.card[data-value="4"][data-suit="2"] {
+    background-image: url(../assets/cards/4.svg), url(../assets/cards/C4.svg);
+}
+
+.card[data-value="5"][data-suit="2"] {
+    background-image: url(../assets/cards/5.svg), url(../assets/cards/C5.svg);
+}
+
+.card[data-value="6"][data-suit="2"] {
+    background-image: url(../assets/cards/6.svg), url(../assets/cards/C6.svg);
+}
+
+.card[data-value="7"][data-suit="2"] {
+    background-image: url(../assets/cards/7.svg), url(../assets/cards/C7.svg);
+}
+
+.card[data-value="8"][data-suit="2"] {
+    background-image: url(../assets/cards/8.svg), url(../assets/cards/C8.svg);
+}
+
+.card[data-value="9"][data-suit="2"] {
+    background-image: url(../assets/cards/9.svg), url(../assets/cards/C9.svg);
+}
+
+.card[data-value="10"][data-suit="2"] {
+    background-image: url(../assets/cards/10.svg), url(../assets/cards/C10.svg);
+}
+
+.card[data-value="11"][data-suit="2"] {
+    background-image: url(../assets/cards/J.svg), url(../assets/cards/CJ.svg);
+}
+
+.card[data-value="12"][data-suit="2"] {
+    background-image: url(../assets/cards/Q.svg), url(../assets/cards/CQ.svg);
+}
+
+.card[data-value="13"][data-suit="2"] {
+    background-image: url(../assets/cards/K.svg), url(../assets/cards/CK.svg);
+}
+
+.card[data-value="14"][data-suit="2"] {
+    background-image: url(../assets/cards/A.svg), url(../assets/cards/CA.svg);
+}
+
+.card[data-value="2"][data-suit="3"] {
+    background-image: url(../assets/cards/2.svg), url(../assets/cards/S2.svg);
+}
+
+.card[data-value="3"][data-suit="3"] {
+    background-image: url(../assets/cards/3.svg), url(../assets/cards/S3.svg);
+}
+
+.card[data-value="4"][data-suit="3"] {
+    background-image: url(../assets/cards/4.svg), url(../assets/cards/S4.svg);
+}
+
+.card[data-value="5"][data-suit="3"] {
+    background-image: url(../assets/cards/5.svg), url(../assets/cards/S5.svg);
+}
+
+.card[data-value="6"][data-suit="3"] {
+    background-image: url(../assets/cards/6.svg), url(../assets/cards/S6.svg);
+}
+
+.card[data-value="7"][data-suit="3"] {
+    background-image: url(../assets/cards/7.svg), url(../assets/cards/S7.svg);
+}
+
+.card[data-value="8"][data-suit="3"] {
+    background-image: url(../assets/cards/8.svg), url(../assets/cards/S8.svg);
+}
+
+.card[data-value="9"][data-suit="3"] {
+    background-image: url(../assets/cards/9.svg), url(../assets/cards/S9.svg);
+}
+
+.card[data-value="10"][data-suit="3"] {
+    background-image: url(../assets/cards/10.svg), url(../assets/cards/S10.svg);
+}
+
+.card[data-value="11"][data-suit="3"] {
+    background-image: url(../assets/cards/J.svg), url(../assets/cards/SJ.svg);
+}
+
+.card[data-value="12"][data-suit="3"] {
+    background-image: url(../assets/cards/Q.svg), url(../assets/cards/SQ.svg);
+}
+
+.card[data-value="13"][data-suit="3"] {
+    background-image: url(../assets/cards/K.svg), url(../assets/cards/SK.svg);
+}
+
+.card[data-value="14"][data-suit="3"] {
+    background-image: url(../assets/cards/A.svg), url(../assets/cards/SA.svg);
 }

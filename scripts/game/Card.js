@@ -8,13 +8,13 @@ class Card {
     static getSuitLetter(suit) {
         switch(suit) {
             case 0:
-                return 'H';
+                return 'H'; // Hearts
             case 1:
-                return 'D';
+                return 'D'; // Diamonds
             case 2:
-                return 'C';
+                return 'C'; // Clubs
             case 3:
-                return 'S';
+                return 'S'; // Spades
         }
     }
     static getValueLetter(value) {

@@ -1,44 +1,295 @@
+/*
+@font-face {
+    font-family: 'Short Stack';
+    font-style: normal;
+    font-weight: 400;
+    font-display: swap;
+    src: url(../assets/fonts/Short-Stack-Normal.woff2) format('woff2');
+    unicode-range: U+0000-00FF, U+0131, U+0152-0153, U+02BB-02BC, U+02C6, U+02DA, U+02DC, U+0304, U+0308, U+0329, U+2000-206F, U+20AC, U+2122, U+2191, U+2193, U+2212, U+2215, U+FEFF, U+FFFD;
+}*/
+
 body {
-    --border: #333333;
+    position: fixed;
+    height: 100%;
+    margin: 0;
+    width: 100%;
+    --color-1: #F600AF;
+    --color-2: #FFEB01;
+    --color-3: #42C3D0;
+    --color-4: #9BFE01;
+    --border-color: #000;
+    --background-color: #FDF7F1;
+    --background-color-2: #FDF7F1;
+    --text-color: #000;
+    --font-family: cursive;
+    background-color: var(--background-color);
+    color: var(--text-color);
+    font-family: var(--font-family);
+}
+
+[visible="false"] {
+    display: none;
+}
+
+[visible="true"] {
+    display: block;
+}
+
+.page {
+    height: 100%;
+    flex-direction: column;
+    justify-content: space-evenly;
+}
+
+.page[visible="true"] {
+    display: flex;
 }
 
 main {
     margin: 1rem auto;
-    max-width: 50rem;
+    max-width: min(50rem, calc(100% - 2rem));
+    width: fit-content;
+    height: calc(100% - 2rem);
 }
-button, textarea {
-    border: var(--border) 1px solid;
+
+button, textarea, input, .select, .option {
     padding: 0.5rem;
+    color: var(--text-color);
+    height: fit-content;
 }
-textarea {
-    height: 2.3rem;
+
+/* select dropdown */
+
+.s-hidden {
+    visibility: hidden;
+    padding-right: 10px;
 }
-button {
+
+.select {
     cursor: pointer;
-    transition: background-color 0.3s;
+    display: inline-block;
+    position: relative;
+    padding-right: 2rem;
 }
-button:hover {
-    background-color: #f0f0f0;
+
+.styledSelect {
+    position: absolute;
+    top: 0;
+    right: 0;
+    bottom: 0;
+    left: 0;
+    padding: inherit;
 }
-button:active {
-    background-color: #e0e0e0;
+
+.styledSelect:after {
+    content: "▼";
+    display: inline-block;
+    position: absolute;
+    right: 0.5rem;
+    top: 0.5rem;
+    pointer-events: none;
 }
+
+.styledSelect:active,
+.styledSelect.active {
+    background-color: var(--background-color);
+}
+
+.styledSelect.active + .options {
+    display: block;
+}
+
+.options {
+    display: none;
+    position: absolute;
+    top: 100%;
+    right: 0;
+    width: 100%;
+    left: 0;
+    z-index: 999;
+    margin: 0 0;
+    padding: 0 0;
+    list-style: none;
+    background-color: var(--background-color);
+}
+
+.options li {
+    margin: 0 0;
+}
+
+/* number input with up and down buttons */
+
+input[type="number"] {
+    -webkit-appearance: textfield;
+    -moz-appearance: textfield;
+    appearance: textfield;
+}
+
+input[type=number]::-webkit-inner-spin-button,
+input[type=number]::-webkit-outer-spin-button {
+    -webkit-appearance: none;
+}
+
+input[type="number"] {
+    -webkit-appearance: textfield;
+    -moz-appearance: textfield;
+    appearance: textfield;
+}
+
+input[type=number]::-webkit-inner-spin-button,
+input[type=number]::-webkit-outer-spin-button {
+    -webkit-appearance: none;
+}
+
+input[type="number"] {
+    -webkit-appearance: textfield;
+    -moz-appearance: textfield;
+    appearance: textfield;
+}
+
+input[type=number]::-webkit-inner-spin-button,
+input[type=number]::-webkit-outer-spin-button {
+    -webkit-appearance: none;
+}
+
+.number-input {
+    display: flex;
+}
+
+.number-input button {
+    outline:none;
+    -webkit-appearance: none;
+    background-color: transparent;
+    border: none;
+    align-items: center;
+    justify-content: center;
+    cursor: pointer;
+    margin: 0;
+    position: relative;
+    width: 2rem;
+    height: inherit;
+}
+
+.number-input button:after {
+    display: inline-block;
+    position: absolute;
+    content: '▼';
+    transform: translate(-50%, -50%) rotate(0deg);
+}
+.number-input button.plus:after {
+    transform: translate(-50%, -50%) rotate(180deg);
+}
+
+.number-input input[type=number] {
+    padding: 0.5rem;
+    border-width: 0 10px;
+    text-align: center;
+    width: 3rem;
+}
+
+textarea {
+    height: calc(2.3rem + 20px);
+}
+button, .c1, .c1, .c3, .styledSelect {
+    cursor: pointer;
+    transition: background-color 0.3s, transform 0.075s;
+}
+.c1, .c2, .c3 {
+    position: relative;
+}
+.c1:hover, .c2:hover, .c3:hover {
+    transform: scale(1.2);
+    /*background-repeat: no-repeat;
+    background-position: center;
+    background-size: cover;
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    content: "";
+    width: 100%;
+    height: 100%;
+    z-index: -1;*/
+}/*
+.c1:hover::before {
+    background-image: url(../assets/doodle/buttonfill1.svg);
+}
+.c2:hover::before, .styledSelect:hover::before {
+    background-image: url(../assets/doodle/buttonfill2.svg);
+}
+.c3:hover::before {
+    background-image: url(../assets/doodle/buttonfill3.svg);
+}*/
+
+/* containers */
+
 .row {
     display: flex;
     flex-direction: row;
     margin: -0.5rem
 }
-
 .row > * {
     margin: 0.5rem
 }
-
 .column {
     display: flex;
     flex-direction: column;
     margin: -0.5rem
 }
-
 .row > * {
     margin: 0.5rem
+}
+.wrap {
+    flex-wrap: wrap;
+}
+
+/* popup */
+
+#popups {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    justify-content: center;
+    align-items: center;
+    background-color: rgba(0, 0, 0, 0.5);
+    z-index: 100;
+    flex-direction: column;
+    display: none;
+}
+
+#popups[visible="true"] {
+    display: flex;
+}
+
+#popups > .popup {
+    background-color: var(--background-color);
+    background-clip: padding-box;
+    padding: 1rem;
+    position: relative;
+    width: 20rem;
+    max-width: calc(100% - 1rem);
+}
+
+#popups.visible {
+    display: block;
+}
+
+#popups > .popup > .popupTitle {
+    font-size: 1.5rem;
+    margin-bottom: 1rem;
+}
+
+#popups > .popup > .popupMessage {
+    margin-bottom: 1rem;
+}
+
+#popups > .popup > .popupClose {
+    position: absolute;
+    top: 0;
+    right: 0;
+    cursor: pointer;
+    padding: 1rem;
 }

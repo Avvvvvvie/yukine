@@ -25,6 +25,8 @@ class Steam  {
         let promise = Steam.client.matchmaking.createLobby(type, maxMembers);
         promise.then((lobby) => {
             steam.initLobby(lobby, true);
+        }).catch((error) => {
+            pages.showError(error.message);
         });
         return promise;
     }
@@ -33,6 +35,8 @@ class Steam  {
         let promise = Steam.client.matchmaking.joinLobby(lobbyID)
         promise.then((lobby) => {
             steam.initLobby(lobby, false);
+        }).catch((error) => {
+            pages.showError(error.message);
         });
         return promise;
     }

@@ -2,17 +2,16 @@ class MenuView {
     DOMContentLoaded() {
         document.getElementById('createLobby').addEventListener('click', menuView.createLobby);
         document.getElementById('joinLobby').addEventListener('click', menuView.joinLobby);
-
-        document.getElementById('activateOverlay').addEventListener('click', function() {
-            steam.openGamePage();
-        });
     }
 
     joinLobby() {
         const lobbyIDString = document.getElementById('lobbyID').value;
         if(!lobbyIDString) return;
         const lobbyID = steam.CodeToLobbyID(lobbyIDString);
-        steam.joinLobby(lobbyID);
+        document.getElementById('joinLobby').classList.add('loading');
+        steam.joinLobby(lobbyID).finally(() => {
+            document.getElementById('joinLobby').classList.remove('loading');
+        });
     }
 
     /**
@@ -22,6 +21,9 @@ class MenuView {
      * Invisible = 3
      */
     createLobby() {
-        steam.createLobby(0, 8);
+        document.getElementById('createLobby').classList.add('loading');
+        steam.createLobby(0, 8).finally(() => {
+            document.getElementById('createLobby').classList.remove('loading');
+        });
     }
 }

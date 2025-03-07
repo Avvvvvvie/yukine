@@ -1,15 +1,15 @@
 class GameView {
     showGame() {
-        windows.setWindow(windows.windows.game);
-        steam.lobbyClient.yukineClient.info.subscribe((oldValue, newValue) => {
+        pages.switchPage(pages.pages.game);
+        steam.lobbyClient.yukineClient.info.subscribeRead((oldValue, newValue) => {
             document.getElementById('gameInfo').innerText = newValue;
         });
-        steam.lobbyClient.yukineClient.round.subscribe((oldValue, newValue) => {
+        steam.lobbyClient.yukineClient.round.subscribeRead((oldValue, newValue) => {
             document.getElementById('round').innerText = 'Round ' + newValue;
         });
-        steam.lobbyClient.yukineClient.state.subscribe((oldValue, newValue) => {
+        steam.lobbyClient.yukineClient.state.subscribeRead((oldValue, newValue) => {
             if(newValue === Yukine.gameState.OVER) {
-                alert('Game ended');
+                console.log("Game ended");
             }
         });
         gameView.loadPlayers();
@@ -19,30 +19,41 @@ class GameView {
         let playerList = document.getElementById('playerList');
         playerList.innerHTML = '';
         for(let player of steam.lobbyClient.yukineClient.players) {
-            playerList.appendChild(this.loadPlayer(player));
+            this.loadPlayer(playerList, player);
         }
     }
 
-    loadPlayer(player) {
-        let playerElement = createDiv('row', 'player');
+    loadPlayer(container, player) {
+        let playerInfo = createDiv('playerInfo');
         let playerName = createDiv('playerName');
-        playerElement.appendChild(playerName);
+        let playerState = createDiv('playerState');
 
         let handAmount = createDiv('handAmount');
-        playerName.appendChild(handAmount);
 
         let playedCards = createDiv('cards', 'row');
-        playerElement.appendChild(playedCards);
         this.placePile(player.played, playedCards);
 
         player.name.subscribeRead((oldValue, newValue) => {
             playerName.innerText = newValue;
         });
         player.hand.subscribeRead((oldValue, newValue) => {
-            handAmount.innerText = '(' + newValue.cards.length + ')';
+            switch (true) {
+                case newValue.cards.length === 0:
+                    handAmount.setAttribute('data-amount', '0');
+                    break;
+                case newValue.cards.length === 1:
+                    handAmount.setAttribute('data-amount', '1');
+                    break;
+                case newValue.cards.length === 2:
+                    handAmount.setAttribute('data-amount', '2');
+                    break;
+                default:
+                    handAmount.setAttribute('data-amount', '3');
+                    break;
+            }
         });
         player.state.subscribeRead((oldValue, newValue) => {
-            playerName.setAttribute('data-state', newValue);
+            playerState.setAttribute('data-state', newValue);
         });
         player.eligible.subscribeRead((oldValue, newValue) => {
             if(playedCards.children.length === 0) return;
@@ -52,14 +63,20 @@ class GameView {
                 playedCards.children[playedCards.children.length - 1].removeAttribute('data-eligible');
             }
         });
-        steam.lobbyClient.yukineClient.currentPlayer.subscribe((oldValue, newValue) => {
+        steam.lobbyClient.yukineClient.currentPlayer.subscribeRead((oldValue, newValue) => {
             if(player.accountId === newValue) {
-                playerName.setAttribute('data-turn', 'true');
+                playerInfo.setAttribute('data-turn', 'true');
             } else {
-                playerName.removeAttribute('data-turn');
+                playerInfo.removeAttribute('data-turn');
             }
         });
-        return playerElement;
+
+        container.appendChild(playerInfo);
+        playerInfo.appendChild(playerName);
+        playerInfo.appendChild(handAmount);
+        playerInfo.appendChild(playerState);
+        container.appendChild(playedCards);
+        console.log(container);
     }
 
     placePile(pile, container, onClick = null) {
@@ -69,7 +86,7 @@ class GameView {
                 let cardElement = createDiv('card', steam.lobbyClient.cardStyle.value);
                 cardElement.setAttribute('data-value', card.value);
                 cardElement.setAttribute('data-suit', card.suit);
-                cardElement.innerText = card.valueString + ' ' + card.suitString;
+                //cardElement.innerText = card.valueString + ' ' + card.suitString;
                 if(onClick) cardElement.addEventListener('click', () => {
                     onClick(card);
                 });

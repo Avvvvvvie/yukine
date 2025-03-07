@@ -9,3 +9,10 @@ function asyncTimeout(ms){
         setTimeout(resolve, ms);
     });
 }
+
+function showElement(element) {
+    element.setAttribute('visible', "true");
+}
+function hideElement(element) {
+    element.setAttribute('visible', "false");
+}

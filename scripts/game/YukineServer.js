@@ -184,7 +184,7 @@ class YukineServer extends Server {
         }
     }
     findRoundWinner() {
-        let sortedPlayers = this.players.filter(player => player.state !== Yukine.playerState.TOTALLOOSE).sort((a, b) => a.lastPlayedCard().value - b.lastPlayedCard().value);
+        let sortedPlayers = this.players.filter(player => player.state !== Yukine.playerState.TOTALLOOSE && player.lastPlayedCard() !== undefined).sort((a, b) => (a.lastPlayedCard().value || -1) - b.lastPlayedCard().value);
         let sortedPlayerCards = sortedPlayers.map(player => player.lastPlayedCard().value);
         let cardOcurrences = sortedPlayerCards.reduce((acc, e) => acc.set(e, (acc.get(e) || 0) + 1), new Map());
 
@@ -260,7 +260,7 @@ class YukineServer extends Server {
         let cleanStreets = streets.filter(obj => obj.length > 2 && obj.duplicates === 0);
 
         // if a card ocurrs 4 times
-        if([...cardOcurrences.values()].includes(4)) {
+        if([...cardOcurrences.values()].includes(4) || (this.players.length === 3 && [...cardOcurrences.values()].includes(3))) {
             this.handAroundHands();
             setState(Yukine.playerState.SWAP, sortedPlayers);
             // triggers and streets are eligible
