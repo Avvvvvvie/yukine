@@ -14,28 +14,42 @@ class LobbyView {
             steam.lobbyServer.setBotAmount(parseInt(event.target.value));
         });
 
-        document.getElementById('sendChat').addEventListener('click', () => {
-            let chatInput = document.getElementById('lobbyChatInput');
-            if(chatInput.value) steam.lobbyClient.addChatMessage(chatInput.value);
-        });
+        document.getElementById('sendChat').addEventListener('click', this.sendChat.bind(this));
 
         document.getElementById('lobbyChatInput').addEventListener('keydown', (event) => {
             if(event.key === 'Enter' || event.keyCode === 13) {
                 document.getElementById('sendChat').click();
             }
         });
+
+        document.getElementById('lobbyIDCopy').addEventListener('click', this.copyLobbyID.bind(this));
     }
 
-    showLobby = (lobby) => {
-        pages.switchPage(pages.pages.lobby);
-        document.getElementById('lobbyIDDisplay').innerText = steam.lobbyIDToCode(lobby.id);
+    copyLobbyID() {
+        let code = steam.lobbyIDToCode(steam.lobbyClient.lobby.id);
+        navigator.clipboard.writeText(code).then(() => {
+            pages.openToast('Lobby ID copied to clipboard');
+        });
+    }
 
-        steam.lobbyClient.chat.subscribeRead((oldValue, newValue) => {
+    sendChat() {
+        let chatInput = document.getElementById('lobbyChatInput');
+        if(chatInput.value) {
+            this.lobbyClient.addChatMessage(chatInput.value);
+        }
+    }
+
+    showLobby = (lobbyClient) => {
+        this.lobbyClient = lobbyClient;
+        pages.switchPage(pages.pages.lobby);
+        document.getElementById('lobbyIDDisplay').innerText = steam.lobbyIDToCode(this.lobbyClient.lobby.id);
+
+        this.lobbyClient.chat.subscribeRead((oldValue, newValue) => {
             document.getElementById('lobbyChat').innerText = newValue;
             document.getElementById('lobbyChatInput').value = '';
         });
 
-        let players = steam.lobbyClient.getPlayers();
+        let players = this.lobbyClient.getPlayers();
         players.subscribeRead((oldValue, newValue) => {
             document.getElementById('lobbyMembers').innerText = "Members: " + newValue.map(member => member.name).join(', ');
         });

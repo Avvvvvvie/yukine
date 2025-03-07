@@ -15,6 +15,26 @@
 #lobbyIDDisplay {
     display: inline;
 }
-#lobbyIDContainer,#lobbyMembers {
+#lobbyMembers {
     margin-bottom: 1rem;
+}
+
+#lobbyIDContainer {
+    display: flex;
+    margin: -0.5rem -0.5rem 0.5rem;
+    align-items: center;
+}
+
+#lobbyIDContainer > * {
+    margin: 0.5rem;
+}
+
+#lobbyIDContainer .clipboard {
+    background-image: url("../assets/icons/clipboard.svg");
+    background-size: contain;
+    background-repeat: no-repeat;
+    width: 1.5rem;
+    height: 1.5rem;
+    margin-left: 0;
+    border-width: 0;
 }

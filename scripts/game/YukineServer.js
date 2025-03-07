@@ -88,6 +88,7 @@ class YukineServer extends Server {
             let eligiblePlayers = this.players.filter(player => player.eligible === true);
             if(eligiblePlayers.length === 0) {
                 this.findRoundWinner();
+                this.findLoosers();
                 this.updateGameState();
                 if(this.state !== Yukine.gameState.OVER) {
                     this.setKey('round',this.round + 1);
@@ -149,6 +150,15 @@ class YukineServer extends Server {
         }
     }
 
+    findTotalLoosers() {
+        for(let player of this.players) {
+            if(player.state === Yukine.playerState.TOTALLOOSE) continue;
+            if(player.hand.cards.length === 0) {
+                player.setState(Yukine.playerState.TOTALLOOSE);
+            }
+        }
+    }
+
     startEndGame() {
         let endGamePlayers = this.players.filter(player => player.state !== Yukine.playerState.TOTALLOOSE).sort((a, b) => a.hand.size() - b.hand.size());
         let cardAmount = endGamePlayers[0].hand.size();
@@ -170,17 +180,21 @@ class YukineServer extends Server {
     }
 
     findLoosers() {
+        let loosersSaved = false;
         for(let player of this.players) {
             if(player.state === Yukine.playerState.LOOSE) continue;
             if(player.hand.size() === 0) {
                 if(this.saveableLoosers > 0) {
-                    this.setKey('saveableLoosers', this.saveableLoosers - 1);
+                    loosersSaved = true;
                     this.giveCardToPlayer(player);
                 } else {
                     player.setState(Yukine.playerState.TOTALLOOSE);
                     player.setEligible(false);
                 }
             }
+        }
+        if(loosersSaved) {
+            this.setKey('saveableLoosers', this.saveableLoosers - 1);
         }
     }
     findRoundWinner() {
@@ -372,8 +386,6 @@ class YukineServer extends Server {
         winner.setEligible(true);
 
         winner.setState(Yukine.playerState.WIN);
-
-        this.findLoosers();
     }
 
     takeLooserCards(player) {

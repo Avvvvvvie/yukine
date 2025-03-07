@@ -15,7 +15,7 @@ class Steam  {
         steam.lobbyClient.state.subscribe((oldValue, newValue) => {
             if(newValue === Yukine.lobbyState.INGAME) {
                 steam.lobbyClient.startGame();
-                gameView.showGame();
+                gameView.showGame(steam.lobbyClient.yukineClient);
             }
         });
         if(isHost) {
@@ -24,7 +24,7 @@ class Steam  {
             steam.lobbyServer.setKey('host', this.playerAccountId);
         }
         steam.lobbyClient.joinLobby();
-        lobbyView.showLobby(lobby);
+        lobbyView.showLobby(steam.lobbyClient);
     }
 
     createLobby(type, maxMembers) {

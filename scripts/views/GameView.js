@@ -1,13 +1,14 @@
 class GameView {
-    showGame() {
+    showGame(yukineClient) {
+        this.yukineClient = yukineClient;
         pages.switchPage(pages.pages.game);
-        steam.lobbyClient.yukineClient.info.subscribeRead((oldValue, newValue) => {
+        this.yukineClient.info.subscribeRead((oldValue, newValue) => {
             document.getElementById('gameInfo').innerText = newValue;
         });
-        steam.lobbyClient.yukineClient.round.subscribeRead((oldValue, newValue) => {
+        this.yukineClient.round.subscribeRead((oldValue, newValue) => {
             document.getElementById('round').innerText = 'Round ' + newValue;
         });
-        steam.lobbyClient.yukineClient.state.subscribeRead((oldValue, newValue) => {
+        this.yukineClient.state.subscribeRead((oldValue, newValue) => {
             if(newValue === Yukine.gameState.OVER) {
                 console.log("Game ended");
             }
@@ -18,7 +19,7 @@ class GameView {
     loadPlayers() {
         let playerList = document.getElementById('playerList');
         playerList.innerHTML = '';
-        for(let player of steam.lobbyClient.yukineClient.players) {
+        for(let player of this.yukineClient.players) {
             this.loadPlayer(playerList, player);
         }
     }
@@ -63,7 +64,7 @@ class GameView {
                 playedCards.children[playedCards.children.length - 1].removeAttribute('data-eligible');
             }
         });
-        steam.lobbyClient.yukineClient.currentPlayer.subscribeRead((oldValue, newValue) => {
+        this.yukineClient.currentPlayer.subscribeRead((oldValue, newValue) => {
             if(player.accountId === newValue) {
                 playerInfo.setAttribute('data-turn', 'true');
             } else {
@@ -97,8 +98,10 @@ class GameView {
 
     loadPlayerHand() {
         let playerHand = document.getElementById('playerHand');
-        this.placePile(steam.lobbyClient.yukineClient.gamePlayer.hand, playerHand, (card) => {
-            steam.lobbyClient.yukineClient.playCard(card);
-        });
+        this.placePile(this.yukineClient.gamePlayer.hand, playerHand, this.playCard.bind(this));
+    }
+
+    playCard(card) {
+        this.yukineClient.playCard(card);
     }
 }

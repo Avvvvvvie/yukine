@@ -64,7 +64,7 @@ class Pages {
         popup.appendChild(popupTitle);
         popup.appendChild(popupMessage);
         popup.appendChild(popupClose);
-        popupContainer.appendChild(popup);
+        popupContainer.prepend(popup);
         return popup;
     }
 
@@ -79,7 +79,7 @@ class Pages {
             if(popup.parentNode !== null) {
                 pages.closePopup(popup);
             }
-        }, 5000);
+        }, 3000);
     }
     showError(message) {
         pages.openPopup('Error', message,'error');

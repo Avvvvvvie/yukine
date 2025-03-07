@@ -35,8 +35,9 @@
     flex-direction: row;
     flex-wrap: wrap;
     position: relative;
-    padding: 0.5rem; /*calc(2rem + .275rem*2)*/
-    align-items: end;
+    padding: 0 0.5rem;
+    align-items: baseline;
+    height: fit-content;
 }
 
 .playerName {
@@ -61,16 +62,20 @@
     height: 1.5rem;
 }
 
+.handAmount {
+    display: none;
+}
+
 .handAmount[data-amount="1"] {
-    background-image: url(../assets/cards/pile1.svg);
+    background-image: url(../assets/icons/pile1.svg);
 }
 
 .handAmount[data-amount="2"] {
-    background-image: url(../assets/cards/pile2.svg);
+    background-image: url(../assets/icons/pile2.svg);
 }
 
 .handAmount[data-amount="3"] {
-    background-image: url(../assets/cards/pile3.svg);
+    background-image: url(../assets/icons/pile3.svg);
 }
 
 #playerList {
@@ -84,7 +89,7 @@
 [data-turn="true"]::after {
     content: "⭐";
     position: absolute;
-    top: .65rem;
+    top: -0.2rem;
     left: -22px;
     font-size: 20px;
     color: gold;
@@ -99,11 +104,11 @@
 }
 
 [data-state="TOTALWIN"] {
-    background-image: url("../assets/cards/totalwin.svg");
+    background-image: url("../assets/icons/totalwin.svg");
 }
 
 [data-state="TOTALLOOSE"] {
-    background-image: url("../assets/cards/totalloose.svg");
+    background-image: url("../assets/icons/totalloose.svg");
 }
 
 [data-state="KEEP"] {
@@ -111,15 +116,16 @@
 }
 
 [data-state="LOOSE"] {
-    background-image: url("../assets/cards/loose.svg");
+    background-image: url("../assets/icons/loose.svg");
+    background-size: 110%;
 }
 
 [data-state="WIN"] {
-    background-image: url("../assets/cards/win.svg");
+    background-image: url("../assets/icons/win.svg");
 }
 
 [data-state="SWAP"] {
-    background-image: url("../assets/cards/swap.svg");
+    background-image: url("../assets/icons/swap.svg");
 }
 
 .card[data-value="2"][data-suit="0"] {
