@@ -12,6 +12,12 @@ class Steam  {
             steam.lobbyServer = new LobbyServer(lobby);
         }
         steam.lobbyClient = new LobbyClient(lobby);
+        steam.lobbyClient.state.subscribe((oldValue, newValue) => {
+            if(newValue === Yukine.lobbyState.INGAME) {
+                steam.lobbyClient.startGame();
+                gameView.showGame();
+            }
+        });
         if(isHost) {
             steam.lobbyServer.addChatMessage(steam.playerName + ' created the lobby');
             steam.isHost = true;

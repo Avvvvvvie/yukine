@@ -11,13 +11,6 @@ class LobbyClient extends Client {
     constructor(lobby) {
         super(lobby, 'settings');
         this.initObservables();
-
-        this.state.subscribe((oldValue, newValue) => {
-            if(newValue === Yukine.lobbyState.INGAME) {
-                this.yukineClient = new SteamYukineClient(lobby);
-                gameView.showGame();
-            }
-        });
     }
 
     getPlayers() {
@@ -28,5 +21,8 @@ class LobbyClient extends Client {
     }
     addChatMessage(message) {
         this.sendAction('chat', message);
+    }
+    startGame() {
+        this.yukineClient = new SteamYukineClient(this.lobby);
     }
 }

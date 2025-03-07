@@ -49,7 +49,7 @@ class YukineServer extends Server {
                         this.nextTurn();
                     });
 
-                    this.moderate(player.name + ' played ' + playerCard.valueString + ' ' + playerCard.suitString);
+                    this.moderate(player.name + ' played ' + playerCard.toText());
                     break;
                 case 'try':
                     this.useTry(player);
@@ -268,7 +268,7 @@ class YukineServer extends Server {
             markEligible(...streets);
             // singles are uneligible
             markUnEligible(...singles);
-            this.moderate("4 of a kind, everyone swaps hands");
+            this.moderate(([...cardOcurrences.values()].includes(4) ? "4" : "3") + " of a kind, everyone swaps hands");
             return;
         }
 

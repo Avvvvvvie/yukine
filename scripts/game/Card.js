@@ -8,31 +8,34 @@ class Card {
     static getSuitLetter(suit) {
         switch(suit) {
             case 0:
-                return 'H'; // Hearts
+                return 'Hearts';
             case 1:
-                return 'D'; // Diamonds
+                return 'Diamonds'; // Diamonds
             case 2:
-                return 'C'; // Clubs
+                return 'Clubs'; // Clubs
             case 3:
-                return 'S'; // Spades
+                return 'Spades'; // Spades
         }
     }
     static getValueLetter(value) {
         switch(value) {
             case 14:
-                return 'A';
+                return 'Ace';
             case 11:
-                return 'J';
+                return 'Jack';
             case 12:
-                return 'Q';
+                return 'Queen';
             case 13:
-                return 'K';
+                return 'King';
             default:
                 return value.toString();
         }
     }
     toString() {
         return this.value + Yukine.delimiters.card + this.suit;
+    }
+    toText() {
+        return this.valueString + ' of ' + this.suitString;
     }
     static fromString(string) {
         if(string === '') return null;
