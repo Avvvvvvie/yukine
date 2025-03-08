@@ -2,7 +2,7 @@ class PlayerServer extends Server {
     write = {
         hand: (value) => value.toString(),
         played: (value) => value.toString(),
-        tries: (value) => value.toString(),
+        tries: (value) => value.join(','),
         tryCanceled: (value) => value.toString(),
         turn: (value) => value.toString(),
         isBot: (value) => value.toString(),
@@ -13,7 +13,7 @@ class PlayerServer extends Server {
         this.accountId = accountId;
         this.setKey('hand', new Pile());
         this.setKey('played', new Pile());
-        this.setKey('tries', 3);
+        this.setKey('tries', Yukine.tries);
         this.setKey('tryCanceled', false);
         this.setKey('name', name);
         this.setEligible(true);
@@ -37,9 +37,11 @@ class PlayerServer extends Server {
         this.writeData('hand');
     }
 
-    useTry() {
-        this.tries--;
+    useTry(tryName) {
+        if(this.tries.indexOf(tryName) === -1) return false;
+        this.tries.splice(this.tries.indexOf(tryName), 1);
         this.writeData('tries');
+        return true;
     }
     giveCards(pile) {
         pile.cards.forEach(card => this.hand.addCard(card));

@@ -51,11 +51,11 @@ class YukineServer extends Server {
 
                     this.moderate(player.name + ' played ' + playerCard.toText());
                     break;
-                case 'try':
-                    this.useTry(player);
+                case 'useTry':
+                    this.useTry(player, value);
                     break;
-                case 'canceltry':
-                    this.cancelTry(player);
+                case 'cancelTry':
+                    this.cancelTry(value);
                     break;
             }
         }
@@ -408,14 +408,19 @@ class YukineServer extends Server {
         player.giveCard(this.deck.drawCard());
         this.writeData('deck');
     }
-    useTry(player) {
-        if(player.tries <= 0) return;
+    useTry(player, tryName) {
+        if(player.tries.length === 0) return;
         if(player.tryCanceled) return;
-        player.useTry();
-        this.giveCardToPlayer(player);
+        //if(player.hand.cards.length !== 1) return;
+        if(player.useTry(tryName)) {
+            this.giveCardToPlayer(player);
+        }
     }
-    cancelTry(player) {
-        player.setKey('tryCanceled', true);
+    cancelTry(accountId) {
+        let player = this.players.find(player => player.accountId === accountId);
+        if(player) {
+            player.setKey('tryCanceled', true);
+        }
     }
     unCancelPlayers() {
         for(let player of this.players) {

@@ -26,17 +26,45 @@ class GameView {
 
     loadPlayer(container, player) {
         let playerInfo = createDiv('playerInfo');
+        container.appendChild(playerInfo);
+        if(player === this.yukineClient.gamePlayer) {
+            playerInfo.setAttribute('data-self', 'true');
+        }
+        this.yukineClient.currentPlayer.subscribeRead((oldValue, newValue) => {
+            if(player.accountId === newValue) {
+                playerInfo.setAttribute('data-turn', 'true');
+            } else {
+                playerInfo.removeAttribute('data-turn');
+            }
+        });
+        player.tryCanceled.subscribeRead((oldValue, newValue) => {
+            if(newValue) {
+                playerInfo.setAttribute('data-canceled', 'true');
+            } else {
+                playerInfo.removeAttribute('data-canceled');
+            }
+        });
+
         let playerName = createDiv('playerName');
-        let playerState = createDiv('playerState');
-
-        let handAmount = createDiv('handAmount');
-
-        let playedCards = createDiv('cards', 'row');
-        this.placePile(player.played, playedCards);
-
+        playerInfo.appendChild(playerName);
         player.name.subscribeRead((oldValue, newValue) => {
             playerName.innerText = newValue;
         });
+
+        let playedCards = createDiv('cards', 'row');
+        this.placePile(player.played, playedCards);
+        container.appendChild(playedCards);
+        player.eligible.subscribeRead((oldValue, newValue) => {
+            if(playedCards.children.length === 0) return;
+            if(newValue) {
+                playedCards.children[playedCards.children.length - 1].setAttribute('data-eligible', newValue);
+            } else {
+                playedCards.children[playedCards.children.length - 1].removeAttribute('data-eligible');
+            }
+        });
+
+        let handAmount = createDiv('handAmount');
+        playerInfo.appendChild(handAmount);
         player.hand.subscribeRead((oldValue, newValue) => {
             switch (true) {
                 case newValue.cards.length === 0:
@@ -53,31 +81,37 @@ class GameView {
                     break;
             }
         });
+
+        for(let tryName of Yukine.tries) {
+            let tryElement = createDiv('try');
+            playerInfo.appendChild(tryElement);
+            tryElement.setAttribute('data-try', tryName);
+            player.tries.subscribeRead((oldValue, newValue) => {
+                if(newValue.indexOf(tryName) === -1) {
+                    tryElement.removeAttribute('data-used', 'false');
+                } else {
+                    tryElement.setAttribute('data-used', 'true');
+                }
+            });
+            if(this.yukineClient.gamePlayer === player) {
+                tryElement.addEventListener('click', () => {
+                    this.yukineClient.useTry(tryName);
+                });
+                tryElement.classList.add('clickable');
+            }
+        }
+
+        let cancelButton = createDiv('cancelTry');
+        playerInfo.appendChild(cancelButton);
+        cancelButton.addEventListener('click', () => {
+           this.yukineClient.cancelTry(player.accountId);
+        });
+
+        let playerState = createDiv('playerState');
+        playerInfo.appendChild(playerState);
         player.state.subscribeRead((oldValue, newValue) => {
             playerState.setAttribute('data-state', newValue);
         });
-        player.eligible.subscribeRead((oldValue, newValue) => {
-            if(playedCards.children.length === 0) return;
-            if(newValue) {
-                playedCards.children[playedCards.children.length - 1].setAttribute('data-eligible', newValue);
-            } else {
-                playedCards.children[playedCards.children.length - 1].removeAttribute('data-eligible');
-            }
-        });
-        this.yukineClient.currentPlayer.subscribeRead((oldValue, newValue) => {
-            if(player.accountId === newValue) {
-                playerInfo.setAttribute('data-turn', 'true');
-            } else {
-                playerInfo.removeAttribute('data-turn');
-            }
-        });
-
-        container.appendChild(playerInfo);
-        playerInfo.appendChild(playerName);
-        playerInfo.appendChild(handAmount);
-        playerInfo.appendChild(playerState);
-        container.appendChild(playedCards);
-        console.log(container);
     }
 
     placePile(pile, container, onClick = null) {

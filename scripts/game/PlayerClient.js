@@ -2,7 +2,12 @@ class PlayerClient extends Client {
     read = {
         hand: (value) => Pile.fromString(value),
         played: (value) => Pile.fromString(value),
-        tries: (value) => parseInt(value),
+        tries: (value) => {
+            if(value) {
+                return value.split(',');
+            }
+            return [];
+        },
         tryCanceled: (value) => value === "true",
         turn: (value) => parseInt(value),
         isBot: (value) => value === "true",

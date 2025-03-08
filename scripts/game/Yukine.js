@@ -27,4 +27,5 @@ class Yukine {
         ENDGAME: "ENDGAME",
         OVER: "OVER"
     }
+    static tries = ['Yukine', 'Yato', 'Hiyori'];
 }

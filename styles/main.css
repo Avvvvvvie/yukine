@@ -21,6 +21,7 @@ body {
     --background-color: #FDF7F1;
     --background-color-2: #FDF7F1;
     --text-color: #000;
+    --text-disabled-color: #d3d3d3;
     --font-family: cursive;
     background-color: var(--background-color);
     color: var(--text-color);

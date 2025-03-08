@@ -27,8 +27,8 @@ class YukineClient extends Client {
         }
     }
 
-    useTry() {
-        this.sendAction('useTry', '');
+    useTry(tryName) {
+        this.sendAction('useTry', tryName);
     }
 
     cancelTry(playerID) {

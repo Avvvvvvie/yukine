@@ -40,7 +40,7 @@
     flex-wrap: wrap;
     position: relative;
     padding: 0 0.5rem;
-    align-items: baseline;
+    align-items: center;
     height: fit-content;
 }
 
@@ -58,12 +58,71 @@
     background-repeat: no-repeat;
 }
 
+.try {
+    width: 1.5rem;
+    height: 1.5rem;
+    color: var(--text-disabled-color);
+    font-size: 1.3rem;
+    text-align: center;
+    margin-top: 0.5rem;
+}
+
+.try[data-used="true"] {
+    color: var(--text-color);
+}
+
+.try[data-try]::after {
+    width: 100%;
+    height: 100%;
+    display: block;
+    top: 0;
+    left: 0;
+}
+
+.try[data-try="Yukine"]::after {
+    content: "Y";
+}
+
+.try[data-try="Yato"]::after {
+    content: "Y";
+}
+
+.try[data-try="Hiyori"]::after {
+    content: "Y";
+}
+
 .playerState {
     background-position: bottom left;
     background-size: contain;
     background-repeat: no-repeat;
     width: 1.5rem;
     height: 1.5rem;
+    margin-top: 0.5rem;
+}
+
+.playerInfo[data-self="true"] .cancelTry {
+    display: none;
+}
+
+.cancelTry {
+    margin-top: 0.5rem;
+    width: 1.5rem;
+    height: 1.5rem;
+    cursor: pointer;
+    text-align: center;
+}
+.cancelTry::after {
+    content: "X";
+    font-size: 1.3rem;
+}
+
+.playerInfo[data-canceled="true"] .cancelTry {
+    color: var(--text-disabled-color);
+    pointer-events: none;
+}
+
+.playerInfo[data-canceled="true"] .try {
+    color: orange;
 }
 
 .handAmount[data-amount="0"] {
