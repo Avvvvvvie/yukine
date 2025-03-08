@@ -22,6 +22,12 @@ class LobbyClient extends Client {
     addChatMessage(message) {
         this.sendAction('chat', message);
     }
+    setCardStyle(style) {
+        this.sendAction('cardStyle', style);
+    }
+    setBotAmount(amount) {
+        this.sendAction('botAmount', amount);
+    }
     startGame() {
         this.yukineClient = new SteamYukineClient(this.lobby);
     }

@@ -16,11 +16,11 @@ class LobbyServer extends Server {
         this.setKey('host', steam.playerAccountId);
         this.setKey('state', Yukine.lobbyState.WAITING);
 
-        this.subscribe((player, key, value) => {
+        this.subscribe((accountId, key, value) => {
             switch (key) {
                 case 'join':
                     this.players.push({
-                        accountId: player,
+                        accountId: accountId,
                         name: value,
                         isBot: false
                     });
@@ -29,7 +29,17 @@ class LobbyServer extends Server {
                     this.addChatMessage(value + ' joined the lobby');
                     break;
                 case 'chat':
-                    this.addChatMessage(this.players.find(p => p.accountId === player).name + ': ' + value);
+                    this.addChatMessage(this.players.find(p => p.accountId === accountId).name + ': ' + value);
+                    break;
+                case 'cardStyle':
+                    if(accountId === this.host) {
+                        this.setKey('cardStyle', value);
+                    }
+                    break;
+                case 'botAmount':
+                    if(accountId === this.host) {
+                        this.setBotAmount(parseInt(value));
+                    }
                     break;
             }
         });

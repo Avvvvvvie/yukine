@@ -6,13 +6,9 @@ class LobbyView {
 
         hideElement(document.getElementById('startGame'));
 
-        document.getElementById('cardStyleSelect').addEventListener('change', (event) => {
-            steam.lobbyServer.setKey('cardStyle',event.target.value);
-        });
+        document.getElementById('cardStyleSelect').addEventListener('change', this.setCardStyle.bind(this));
 
-        document.getElementById('botAmount').addEventListener('change', (event) => {
-            steam.lobbyServer.setBotAmount(parseInt(event.target.value));
-        });
+        document.getElementById('botAmount').addEventListener('change', this.setBotAmount.bind(this));
 
         document.getElementById('sendChat').addEventListener('click', this.sendChat.bind(this));
 
@@ -25,8 +21,16 @@ class LobbyView {
         document.getElementById('lobbyIDCopy').addEventListener('click', this.copyLobbyID.bind(this));
     }
 
+    setCardStyle(event) {
+        this.lobbyClient.setCardStyle(event.target.value);
+    }
+
+    setBotAmount(event) {
+        this.lobbyClient.setBotAmount(event.target.value);
+    }
+
     copyLobbyID() {
-        let code = steam.lobbyIDToCode(steam.lobbyClient.lobby.id);
+        let code = steam.lobbyIDToCode(this.lobbyClient.lobby.id);
         navigator.clipboard.writeText(code).then(() => {
             pages.openToast('Lobby ID copied to clipboard');
         });
