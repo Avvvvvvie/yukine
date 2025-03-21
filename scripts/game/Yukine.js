@@ -1,5 +1,17 @@
 class Yukine {
-    static client = init(480);
+    static client = (() => {
+        let i;
+        try {
+            i = init(480);
+        } catch(error) {
+            pages.onLoad(() => {
+                pages.showError("Could not connect to Steam: " + error.message, () => {
+                    location.reload();
+                });
+            });
+        }
+        return i;
+    })();
     static delimiters = {
         card: ":C:",
         pile: ":P:",

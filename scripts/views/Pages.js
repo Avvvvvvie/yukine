@@ -97,7 +97,25 @@ class Pages {
             }
         }, 3000);
     }
-    showError(message) {
-        pages.openPopup('Error', message,'error');
+    showError(message, retryCallback = null) {
+        let popup = this.openPopup('Error', message,'error');
+        if(retryCallback) {
+            let button = document.createElement('button');
+            button.innerText = 'Retry';
+            popup.appendChild(button);
+            button.addEventListener('click', (e) => {
+                retryCallback();
+                e.preventDefault();
+                e.stopImmediatePropagation();
+            });
+        }
+    }
+    onLoad(callback) {
+        if (document.readyState === 'complete') {
+            callback();
+        } else {
+            window.addEventListener('load', callback);
+        }
     }
 }
+const pages = new Pages();

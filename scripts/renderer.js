@@ -1,6 +1,5 @@
 
 const yukine = new Yukine();
-const pages = new Pages();
 
 document.addEventListener('DOMContentLoaded', function() {
     pages.DOMContentLoaded();
