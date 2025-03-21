@@ -268,6 +268,13 @@ class YukineServer extends Server {
         let cleanStreets = streets.filter(obj => obj.length > 2 && obj.duplicates === 0);
         let allTriggers = streets.filter(obj => obj.players >= 2);
 
+        let aceTwoDuplicateStreets = duplicateStreets.filter(obj => obj.contains(14) && obj.contains(2));
+        // aceTwoDuplicateStreets belong to clean Streets
+        if(aceTwoDuplicateStreets.length > 0) {
+            duplicateStreets = duplicateStreets.filter(obj => !aceTwoDuplicateStreets.includes(obj));
+            cleanStreets = cleanStreets.concat(aceTwoDuplicateStreets);
+        }
+
         // if there is endless triggering
         // aka if the only triggers are players with no cards
         let noCardsPlayers = this.players.filter(player => player.hand.size() === 0);
@@ -398,6 +405,7 @@ class YukineServer extends Server {
         for(let card of rewardCards) {
             winner.hand.addCard(card);
         }
+        this.remove4SameCards(winner);
         winner.writeData('hand');
 
         winner.setState(Yukine.playerState.WIN);
