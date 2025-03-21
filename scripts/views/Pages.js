@@ -2,13 +2,20 @@ class Pages {
     pages = {
         menu: "menu",
         lobby: "lobby",
-        game: "game"
+        game: "game",
+        tutorial: "tutorial"
+    };
+    views = {
+        menu: new MenuView(),
+        lobby: new LobbyView(),
+        game: new GameView(),
+        tutorial: new TutorialView()
     };
     DOMContentLoaded() {
-        for(let window in this.pages) {
-            this.hidePage(window);
-        }
+        this.hideAllPages();
+
         this.switchPage(this.pages.menu);
+
         // on error
         window.addEventListener('error', (error) => {
             pages.openPopup('Error', error.message, 'error');
@@ -31,6 +38,15 @@ class Pages {
         navigator.connection.onchange = updateOnlineStatus
 
         updateOnlineStatus();
+
+        for(let view in this.views) {
+            this.views[view].DOMContentLoaded();
+        }
+    }
+    hideAllPages() {
+        for(let window in this.pages) {
+            this.hidePage(window);
+        }
     }
     switchPage (page) {
         if(this.currentWindow) this.hidePage(this.currentWindow);

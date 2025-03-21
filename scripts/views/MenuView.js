@@ -1,17 +1,28 @@
-class MenuView {
+class MenuView extends View {
     DOMContentLoaded() {
-        document.getElementById('createLobby').addEventListener('click', menuView.createLobby);
-        document.getElementById('joinLobby').addEventListener('click', menuView.joinLobby);
+        document.getElementById('createLobby').addEventListener('click', this.createLobby.bind(this));
+        document.getElementById('joinLobby').addEventListener('click', this.joinLobby.bind(this));
+        document.getElementById('showTutorial').addEventListener('click', this.showTutorial.bind(this));
+    }
+
+    init() {
+
     }
 
     joinLobby() {
         const lobbyIDString = document.getElementById('lobbyID').value;
         if(!lobbyIDString) return;
-        const lobbyID = steam.CodeToLobbyID(lobbyIDString);
+        const lobbyID = Yukine.CodeToLobbyID(lobbyIDString);
         document.getElementById('joinLobby').classList.add('loading');
-        steam.joinLobby(lobbyID).finally(() => {
+        yukine.joinLobby(lobbyID).catch((error) => {
+            pages.showError(error.message);
+        }).finally(() => {
             document.getElementById('joinLobby').classList.remove('loading');
         });
+    }
+
+    showTutorial() {
+        pages.switchPage(pages.pages.tutorial);
     }
 
     /**
@@ -22,7 +33,9 @@ class MenuView {
      */
     createLobby() {
         document.getElementById('createLobby').classList.add('loading');
-        steam.createLobby(0, 8).finally(() => {
+        yukine.createLobby(0, 8).catch((error) => {
+            pages.showError(error.message);
+        }).finally(() => {
             document.getElementById('createLobby').classList.remove('loading');
         });
     }

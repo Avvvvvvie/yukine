@@ -1,0 +1,26 @@
+#menu {
+  .loading {
+    pointer-events: none;
+    opacity: 0.6;
+  }
+  > .content {
+    > .row {
+      align-items: end;
+    }
+    > h1 {
+      text-align: center;
+      font-size: 3.5rem;
+      margin-bottom: 2rem;
+    }
+  }
+  .loading {
+    animation: l1 2s infinite ease-in-out;
+  }
+}
+
+@keyframes l1 {
+  0%   {transform: perspective(150px) rotateX(0deg)}
+  25% {transform: perspective(150px) rotateX(-180deg)}
+  50% {transform: perspective(150px) rotateX(-360deg)}
+  100% {transform: perspective(150px) rotateX(-360deg)}
+}

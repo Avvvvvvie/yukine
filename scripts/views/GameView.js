@@ -1,7 +1,10 @@
-class GameView {
-    showGame(yukineClient) {
+class GameView extends View {
+    DOMContentLoaded() {
+
+    }
+
+    init(yukineClient) {
         this.yukineClient = yukineClient;
-        pages.switchPage(pages.pages.game);
         this.yukineClient.info.subscribeRead((oldValue, newValue) => {
             document.getElementById('gameInfo').innerText = newValue;
         });
@@ -13,8 +16,9 @@ class GameView {
                 console.log("Game ended");
             }
         });
-        gameView.loadPlayers();
-        gameView.loadPlayerHand();
+        this.loadPlayers();
+        this.loadPlayerHand();
+        pages.switchPage(pages.pages.game);
     }
     loadPlayers() {
         let playerList = document.getElementById('playerList');
@@ -118,7 +122,7 @@ class GameView {
         pile.subscribeRead((oldValue, newValue) => {
             container.innerHTML = '';
             for(let card of pile.value.cards) {
-                let cardElement = createDiv('card', steam.lobbyClient.cardStyle.value);
+                let cardElement = createDiv('card', yukine.lobbyClient.cardStyle.value);
                 cardElement.setAttribute('data-value', card.value);
                 cardElement.setAttribute('data-suit', card.suit);
                 //cardElement.innerText = card.valueString + ' ' + card.suitString;

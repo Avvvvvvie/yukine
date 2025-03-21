@@ -14,7 +14,7 @@ class YukineClient extends Client {
     }
 
     initPlayers() {
-        this.players = steam.lobbyClient.getPlayers().value.map(player => new SteamPlayerClient(this.lobby, player.accountId));
+        this.players = yukine.lobbyClient.getPlayers().value.map(player => new SteamPlayerClient(this.lobby, player.accountId));
         this.findGamePlayer()
     }
 

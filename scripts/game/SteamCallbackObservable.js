@@ -3,12 +3,12 @@ class SteamCallbackObservable {
     constructor() {
         this.unsubscribeAll();
 
-        this.callback = Steam.client.callback.register(SteamCallback.LobbyDataUpdate, (data) => {
+        this.callback = Yukine.client.callback.register(SteamCallback.LobbyDataUpdate, (data) => {
             for(let observer of this.callbackObservers[SteamCallback.LobbyDataUpdate]) {
                 observer(data);
             }
         });
-        this.callback = Steam.client.callback.register(SteamCallback.GameLobbyJoinRequested, (data) => {
+        this.callback = Yukine.client.callback.register(SteamCallback.GameLobbyJoinRequested, (data) => {
             for(let observer of this.callbackObservers[SteamCallback.GameLobbyJoinRequested]) {
                 observer(data);
             }

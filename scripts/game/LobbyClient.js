@@ -17,7 +17,7 @@ class LobbyClient extends Client {
         return this.players;
     }
     joinLobby() {
-        this.sendAction('join', steam.playerName);
+        this.sendAction('join', yukine.playerName);
     }
     addChatMessage(message) {
         this.sendAction('chat', message);

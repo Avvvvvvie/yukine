@@ -1,5 +1,5 @@
 class Client {
-    playerAccountId = steam.playerAccountId;
+    playerAccountId = yukine.playerAccountId;
     read = {
 
     }
@@ -10,7 +10,7 @@ class Client {
 
         this.updates = new Set();
 
-        steam.steamCallback.subscribe(SteamCallback.LobbyDataUpdate, () => {
+        yukine.steamCallback.subscribe(SteamCallback.LobbyDataUpdate, () => {
             for(let observer of this.observers) {
                 this.readUpdates(observer);
             }

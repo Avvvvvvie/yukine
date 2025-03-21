@@ -1,8 +1,8 @@
-class LobbyView {
+class LobbyView extends View {
     DOMContentLoaded() {
         document.getElementById('leaveLobby').addEventListener('click', this.leaveLobby);
 
-        document.getElementById('startGame').addEventListener('click', steam.startGame);
+        document.getElementById('startGame').addEventListener('click', yukine.startGame);
 
         hideElement(document.getElementById('startGame'));
 
@@ -30,7 +30,7 @@ class LobbyView {
     }
 
     copyLobbyID() {
-        let code = steam.lobbyIDToCode(this.lobbyClient.lobby.id);
+        let code = Yukine.lobbyIDToCode(this.lobbyClient.lobby.id);
         navigator.clipboard.writeText(code).then(() => {
             pages.openToast('Lobby ID copied to clipboard');
         });
@@ -43,10 +43,10 @@ class LobbyView {
         }
     }
 
-    showLobby = (lobbyClient) => {
+    init(lobbyClient) {
         this.lobbyClient = lobbyClient;
         pages.switchPage(pages.pages.lobby);
-        document.getElementById('lobbyIDDisplay').innerText = steam.lobbyIDToCode(this.lobbyClient.lobby.id);
+        document.getElementById('lobbyIDDisplay').innerText = Yukine.lobbyIDToCode(this.lobbyClient.lobby.id);
 
         this.lobbyClient.chat.subscribeRead((oldValue, newValue) => {
             document.getElementById('lobbyChat').innerText = newValue;
@@ -57,13 +57,13 @@ class LobbyView {
         players.subscribeRead((oldValue, newValue) => {
             document.getElementById('lobbyMembers').innerText = "Members: " + newValue.map(member => member.name).join(', ');
         });
-        if(steam.isHost) {
+        if(yukine.isHost) {
             showElement(document.getElementById('startGame'));
         }
     }
 
     leaveLobby() {
-        steam.leaveLobby();
+        yukine.leaveLobby();
         pages.switchPage(pages.pages.menu);
     }
 }

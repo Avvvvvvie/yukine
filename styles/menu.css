@@ -1,29 +1,32 @@
 #menu .loading {
-    pointer-events: none;
-    opacity: 0.6;
+  pointer-events: none;
+  opacity: 0.6;
 }
-
 #menu > .content > .row {
-    align-items: end;
+  align-items: end;
 }
-
 #menu > .content > h1 {
-    text-align: center;
-    font-size: 3.5rem;
-    margin-bottom: 2rem;
+  text-align: center;
+  font-size: 3.5rem;
+  margin-bottom: 2rem;
 }
-
-
-    /* HTML: <div class="loader"></div> */
-    .loading {
-        /*width: 40px;
-        aspect-ratio: 1;
-        background: #000;*/
-        animation: l1 2s infinite ease-in-out;
-    }
-    @keyframes l1 {
-        0%   {transform: perspective(150px) rotateX(0deg)}
-        25% {transform: perspective(150px) rotateX(-180deg)}
-        50% {transform: perspective(150px) rotateX(-360deg)}
-        100% {transform: perspective(150px) rotateX(-360deg)}
-    }
+#menu .loading {
+  /*width: 40px;
+    aspect-ratio: 1;
+    background: #000;*/
+  animation: l1 2s infinite ease-in-out;
+}
+@keyframes l1 {
+  0% {
+    transform: perspective(150px) rotateX(0deg);
+  }
+  25% {
+    transform: perspective(150px) rotateX(-180deg);
+  }
+  50% {
+    transform: perspective(150px) rotateX(-360deg);
+  }
+  100% {
+    transform: perspective(150px) rotateX(-360deg);
+  }
+}

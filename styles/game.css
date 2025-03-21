@@ -1,400 +1,308 @@
 #game {
-    --card-height: 5rem;
+  --card-height: 5rem;
 }
-
 #game > .content {
-    margin-left: 1.3rem;
-}
-
-.card {
-    border-radius: 5px;
-    display: flex;
-    justify-content: center;
-    align-items: center;
-    font-size: 20px;
-    font-weight: bold;
-    color: #333;
-    cursor: pointer;
-    width: calc(var(--card-height)* 0.7723);
-    height: var(--card-height);
-    background-size: contain;
-    background-repeat: no-repeat;
-    transition: background-color 0.3s
-}
-
-#gameInfo {
-    min-height: 1.15rem;
-}
-
-#playerHand .card {
-    transition: background-color 0.3s, transform 0.1s;
-}
-
-#playerHand .card:hover {
-    transform: scale(1.2);
-}
-
-.playerInfo {
-    display: flex;
-    flex-direction: row;
-    flex-wrap: wrap;
-    position: relative;
-    padding: 0 0.5rem;
-    align-items: center;
-    height: fit-content;
-}
-
-.playerName {
-    width: 100%;
-    position: relative;
-}
-
-.handAmount {
-    margin-top: 0.5rem;
-    width: 1.5rem;
-    height: 1.5rem;
-    background-position: bottom left;
-    background-size: contain;
-    background-repeat: no-repeat;
-}
-
-.try {
-    width: 1.5rem;
-    height: 1.5rem;
-    color: var(--text-disabled-color);
-    font-size: 1.3rem;
-    text-align: center;
-    margin-top: 0.5rem;
-}
-
-.try[data-used="true"] {
-    color: var(--text-color);
-}
-
-.try[data-try]::after {
-    width: 100%;
-    height: 100%;
-    display: block;
-    top: 0;
-    left: 0;
-}
-
-.try[data-try="Yukine"]::after {
-    content: "Y";
-}
-
-.try[data-try="Yato"]::after {
-    content: "Y";
-}
-
-.try[data-try="Hiyori"]::after {
-    content: "Y";
-}
-
-.playerState {
-    background-position: bottom left;
-    background-size: contain;
-    background-repeat: no-repeat;
-    width: 1.5rem;
-    height: 1.5rem;
-    margin-top: 0.5rem;
-}
-
-.playerInfo[data-self="true"] .cancelTry {
-    display: none;
-}
-
-.cancelTry {
-    margin-top: 0.5rem;
-    width: 1.5rem;
-    height: 1.5rem;
-    cursor: pointer;
-    text-align: center;
-}
-.cancelTry::after {
-    content: "X";
-    font-size: 1.3rem;
-}
-
-.playerInfo[data-canceled="true"] .cancelTry {
-    color: var(--text-disabled-color);
-    pointer-events: none;
-}
-
-.playerInfo[data-canceled="true"] .try {
-    color: orange;
-}
-
-.handAmount[data-amount="0"] {
-    display: none;
-}
-
-.handAmount[data-amount="1"] {
-    background-image: url(../assets/icons/pile1.svg);
-}
-
-.handAmount[data-amount="2"] {
-    background-image: url(../assets/icons/pile2.svg);
-}
-
-.handAmount[data-amount="3"] {
-    background-image: url(../assets/icons/pile3.svg);
-}
-
-#playerList {
-    display: grid;
-    grid-template-columns: 1fr 4fr;
-    margin: 1.5rem -0.5rem 1.5rem -0.5rem;
-    grid-auto-rows: var(--card-height);
-    grid-gap: 0.5rem;
-}
-
-[data-turn="true"]::after {
-    content: "⭐";
-    position: absolute;
-    top: -0.2rem;
-    left: -1.3rem;
-    font-size: 1.3rem;
-    color: gold;
-}
-
-[data-eligible="true"] {
-    background-color: #ffd630;
-}
-
-[data-state="NONE"] {
-
-}
-
-[data-state="TOTALWIN"] {
-    background-image: url("../assets/icons/totalwin.svg");
-}
-
-[data-state="TOTALLOOSE"] {
-    background-image: url("../assets/icons/totalloose.svg");
-}
-
-[data-state="KEEP"] {
-
-}
-
-[data-state="LOOSE"] {
-    background-image: url("../assets/icons/loose.svg");
-    background-size: 110%;
-}
-
-[data-state="WIN"] {
-    background-image: url("../assets/icons/win.svg");
-}
-
-[data-state="SWAP"] {
-    background-image: url("../assets/icons/swap.svg");
-}
-
-.card[data-value="2"][data-suit="0"] {
-    background-image: url(../assets/cards/2.svg), url(../assets/cards/H2.svg);
-}
-
-.card[data-value="3"][data-suit="0"] {
-    background-image: url(../assets/cards/3.svg), url(../assets/cards/H3.svg);
-}
-
-.card[data-value="4"][data-suit="0"] {
-    background-image: url(../assets/cards/4.svg), url(../assets/cards/H4.svg);
-}
-
-.card[data-value="5"][data-suit="0"] {
-    background-image: url(../assets/cards/5.svg), url(../assets/cards/H5.svg);
-}
-
-.card[data-value="6"][data-suit="0"] {
-    background-image: url(../assets/cards/6.svg), url(../assets/cards/H6.svg);
-}
-
-.card[data-value="7"][data-suit="0"] {
-    background-image: url(../assets/cards/7.svg), url(../assets/cards/H7.svg);
-}
-
-.card[data-value="8"][data-suit="0"] {
-    background-image: url(../assets/cards/8.svg), url(../assets/cards/H8.svg);
-}
-
-.card[data-value="9"][data-suit="0"] {
-    background-image: url(../assets/cards/9.svg), url(../assets/cards/H9.svg);
-}
-
-.card[data-value="10"][data-suit="0"] {
-    background-image: url(../assets/cards/10.svg), url(../assets/cards/H10.svg);
-}
-
-.card[data-value="11"][data-suit="0"] {
-    background-image: url(../assets/cards/J.svg), url(../assets/cards/HJ.svg);
-}
-
-.card[data-value="12"][data-suit="0"] {
-    background-image: url(../assets/cards/Q.svg), url(../assets/cards/HQ.svg);
-}
-
-.card[data-value="13"][data-suit="0"] {
-    background-image: url(../assets/cards/K.svg), url(../assets/cards/HK.svg);
-}
-
-.card[data-value="14"][data-suit="0"] {
-    background-image: url(../assets/cards/A.svg), url(../assets/cards/HA.svg);
-}
-
-.card[data-value="2"][data-suit="1"] {
-    background-image: url(../assets/cards/2.svg), url(../assets/cards/D2.svg);
-}
-
-.card[data-value="3"][data-suit="1"] {
-    background-image: url(../assets/cards/3.svg), url(../assets/cards/D3.svg);
-}
-
-.card[data-value="4"][data-suit="1"] {
-    background-image: url(../assets/cards/4.svg), url(../assets/cards/D4.svg);
-}
-
-.card[data-value="5"][data-suit="1"] {
-    background-image: url(../assets/cards/5.svg), url(../assets/cards/D5.svg);
-}
-
-.card[data-value="6"][data-suit="1"] {
-    background-image: url(../assets/cards/6.svg), url(../assets/cards/D6.svg);
-}
-
-.card[data-value="7"][data-suit="1"] {
-    background-image: url(../assets/cards/7.svg), url(../assets/cards/D7.svg);
-}
-
-.card[data-value="8"][data-suit="1"] {
-    background-image: url(../assets/cards/8.svg), url(../assets/cards/D8.svg);
-}
-
-.card[data-value="9"][data-suit="1"] {
-    background-image: url(../assets/cards/9.svg), url(../assets/cards/D9.svg);
-}
-
-.card[data-value="10"][data-suit="1"] {
-    background-image: url(../assets/cards/10.svg), url(../assets/cards/D10.svg);
-}
-
-.card[data-value="11"][data-suit="1"] {
-    background-image: url(../assets/cards/J.svg), url(../assets/cards/DJ.svg);
-}
-
-.card[data-value="12"][data-suit="1"] {
-    background-image: url(../assets/cards/Q.svg), url(../assets/cards/DQ.svg);
-}
-
-.card[data-value="13"][data-suit="1"] {
-    background-image: url(../assets/cards/K.svg), url(../assets/cards/DK.svg);
-}
-
-.card[data-value="14"][data-suit="1"] {
-    background-image: url(../assets/cards/A.svg), url(../assets/cards/DA.svg);
-}
-
-.card[data-value="2"][data-suit="2"] {
-    background-image: url(../assets/cards/2.svg), url(../assets/cards/C2.svg);
-}
-
-.card[data-value="3"][data-suit="2"] {
-    background-image: url(../assets/cards/3.svg), url(../assets/cards/C3.svg);
-}
-
-.card[data-value="4"][data-suit="2"] {
-    background-image: url(../assets/cards/4.svg), url(../assets/cards/C4.svg);
-}
-
-.card[data-value="5"][data-suit="2"] {
-    background-image: url(../assets/cards/5.svg), url(../assets/cards/C5.svg);
-}
-
-.card[data-value="6"][data-suit="2"] {
-    background-image: url(../assets/cards/6.svg), url(../assets/cards/C6.svg);
-}
-
-.card[data-value="7"][data-suit="2"] {
-    background-image: url(../assets/cards/7.svg), url(../assets/cards/C7.svg);
-}
-
-.card[data-value="8"][data-suit="2"] {
-    background-image: url(../assets/cards/8.svg), url(../assets/cards/C8.svg);
-}
-
-.card[data-value="9"][data-suit="2"] {
-    background-image: url(../assets/cards/9.svg), url(../assets/cards/C9.svg);
-}
-
-.card[data-value="10"][data-suit="2"] {
-    background-image: url(../assets/cards/10.svg), url(../assets/cards/C10.svg);
-}
-
-.card[data-value="11"][data-suit="2"] {
-    background-image: url(../assets/cards/J.svg), url(../assets/cards/CJ.svg);
-}
-
-.card[data-value="12"][data-suit="2"] {
-    background-image: url(../assets/cards/Q.svg), url(../assets/cards/CQ.svg);
-}
-
-.card[data-value="13"][data-suit="2"] {
-    background-image: url(../assets/cards/K.svg), url(../assets/cards/CK.svg);
-}
-
-.card[data-value="14"][data-suit="2"] {
-    background-image: url(../assets/cards/A.svg), url(../assets/cards/CA.svg);
-}
-
-.card[data-value="2"][data-suit="3"] {
-    background-image: url(../assets/cards/2.svg), url(../assets/cards/S2.svg);
-}
-
-.card[data-value="3"][data-suit="3"] {
-    background-image: url(../assets/cards/3.svg), url(../assets/cards/S3.svg);
-}
-
-.card[data-value="4"][data-suit="3"] {
-    background-image: url(../assets/cards/4.svg), url(../assets/cards/S4.svg);
-}
-
-.card[data-value="5"][data-suit="3"] {
-    background-image: url(../assets/cards/5.svg), url(../assets/cards/S5.svg);
-}
-
-.card[data-value="6"][data-suit="3"] {
-    background-image: url(../assets/cards/6.svg), url(../assets/cards/S6.svg);
-}
-
-.card[data-value="7"][data-suit="3"] {
-    background-image: url(../assets/cards/7.svg), url(../assets/cards/S7.svg);
-}
-
-.card[data-value="8"][data-suit="3"] {
-    background-image: url(../assets/cards/8.svg), url(../assets/cards/S8.svg);
-}
-
-.card[data-value="9"][data-suit="3"] {
-    background-image: url(../assets/cards/9.svg), url(../assets/cards/S9.svg);
-}
-
-.card[data-value="10"][data-suit="3"] {
-    background-image: url(../assets/cards/10.svg), url(../assets/cards/S10.svg);
-}
-
-.card[data-value="11"][data-suit="3"] {
-    background-image: url(../assets/cards/J.svg), url(../assets/cards/SJ.svg);
-}
-
-.card[data-value="12"][data-suit="3"] {
-    background-image: url(../assets/cards/Q.svg), url(../assets/cards/SQ.svg);
-}
-
-.card[data-value="13"][data-suit="3"] {
-    background-image: url(../assets/cards/K.svg), url(../assets/cards/SK.svg);
-}
-
-.card[data-value="14"][data-suit="3"] {
-    background-image: url(../assets/cards/A.svg), url(../assets/cards/SA.svg);
+  margin-left: 1.3rem;
+}
+#game .card {
+  border-radius: 5px;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  font-size: 20px;
+  font-weight: bold;
+  color: #333;
+  cursor: pointer;
+  width: calc(var(--card-height)*0.7723);
+  height: var(--card-height);
+  background-size: contain;
+  background-repeat: no-repeat;
+  transition: background-color 0.3s;
+}
+#game #gameInfo {
+  min-height: 1.15rem;
+}
+#game #playerHand .card {
+  transition: background-color 0.3s, transform 0.1s;
+}
+#game #playerHand .card:hover {
+  transform: scale(1.2);
+}
+#game .playerInfo {
+  display: flex;
+  flex-direction: row;
+  flex-wrap: wrap;
+  position: relative;
+  padding: 0 0.5rem;
+  align-items: center;
+  height: fit-content;
+}
+#game .playerInfo[data-self="true"] .cancelTry {
+  display: none;
+}
+#game .playerInfo[data-canceled="true"] .cancelTry {
+  color: var(--text-disabled-color);
+  pointer-events: none;
+}
+#game .playerInfo[data-canceled="true"] .try {
+  color: orange;
+}
+#game .playerName {
+  width: 100%;
+  position: relative;
+}
+#game .handAmount {
+  margin-top: 0.5rem;
+  width: 1.5rem;
+  height: 1.5rem;
+  background-position: bottom left;
+  background-size: contain;
+  background-repeat: no-repeat;
+}
+#game .handAmount[data-amount="1"] {
+  background-image: url('../assets/icons/pile1.svg');
+}
+#game .handAmount[data-amount="2"] {
+  background-image: url('../assets/icons/pile2.svg');
+}
+#game .handAmount[data-amount="3"] {
+  background-image: url('../assets/icons/pile3.svg');
+}
+#game .handAmount[data-amount="0"] {
+  display: none;
+}
+#game .try {
+  width: 1.5rem;
+  height: 1.5rem;
+  color: var(--text-disabled-color);
+  font-size: 1.3rem;
+  text-align: center;
+  margin-top: 0.5rem;
+}
+#game .try[data-used="true"] {
+  color: var(--text-color);
+}
+#game .try[data-try]::after {
+  width: 100%;
+  height: 100%;
+  display: block;
+  top: 0;
+  left: 0;
+}
+#game .try[data-try="Yukine"]::after {
+  content: "Y";
+}
+#game .try[data-try="Yato"]::after {
+  content: "Y";
+}
+#game .try[data-try="Hiyori"]::after {
+  content: "Y";
+}
+#game .playerState {
+  background-position: bottom left;
+  background-size: contain;
+  background-repeat: no-repeat;
+  width: 1.5rem;
+  height: 1.5rem;
+  margin-top: 0.5rem;
+}
+#game .cancelTry {
+  margin-top: 0.5rem;
+  width: 1.5rem;
+  height: 1.5rem;
+  cursor: pointer;
+  text-align: center;
+}
+#game .cancelTry::after {
+  content: "X";
+  font-size: 1.3rem;
+}
+#game #playerList {
+  display: grid;
+  grid-template-columns: 1.2fr 4fr;
+  margin: 1.5rem -0.5rem 1.5rem -0.5rem;
+  grid-auto-rows: var(--card-height);
+  grid-gap: 0.5rem;
+}
+#game [data-turn="true"]::after {
+  content: "⭐";
+  position: absolute;
+  top: -0.2rem;
+  left: -1.3rem;
+  font-size: 1.3rem;
+  color: gold;
+}
+#game [data-eligible="true"] {
+  background-color: #ffd630;
+}
+#game[data-state="TOTALWIN"] {
+  background-image: url("../assets/icons/TOTALWIN.svg");
+}
+#game[data-state="TOTALLOOSE"] {
+  background-image: url("../assets/icons/TOTALLOOSE.svg");
+}
+#game[data-state="LOOSE"] {
+  background-image: url("../assets/icons/LOOSE.svg");
+}
+#game[data-state="WIN"] {
+  background-image: url("../assets/icons/WIN.svg");
+}
+#game[data-state="SWAP"] {
+  background-image: url("../assets/icons/SWAP.svg");
+}
+#game .card[data-value="2"][data-suit="H"] {
+  background-image: url('../assets/cards/2.svg'), url('../assets/cards/H2.svg');
+}
+#game .card[data-value="2"][data-suit="D"] {
+  background-image: url('../assets/cards/2.svg'), url('../assets/cards/D2.svg');
+}
+#game .card[data-value="2"][data-suit="C"] {
+  background-image: url('../assets/cards/2.svg'), url('../assets/cards/C2.svg');
+}
+#game .card[data-value="2"][data-suit="S"] {
+  background-image: url('../assets/cards/2.svg'), url('../assets/cards/S2.svg');
+}
+#game .card[data-value="3"][data-suit="H"] {
+  background-image: url('../assets/cards/3.svg'), url('../assets/cards/H3.svg');
+}
+#game .card[data-value="3"][data-suit="D"] {
+  background-image: url('../assets/cards/3.svg'), url('../assets/cards/D3.svg');
+}
+#game .card[data-value="3"][data-suit="C"] {
+  background-image: url('../assets/cards/3.svg'), url('../assets/cards/C3.svg');
+}
+#game .card[data-value="3"][data-suit="S"] {
+  background-image: url('../assets/cards/3.svg'), url('../assets/cards/S3.svg');
+}
+#game .card[data-value="4"][data-suit="H"] {
+  background-image: url('../assets/cards/4.svg'), url('../assets/cards/H4.svg');
+}
+#game .card[data-value="4"][data-suit="D"] {
+  background-image: url('../assets/cards/4.svg'), url('../assets/cards/D4.svg');
+}
+#game .card[data-value="4"][data-suit="C"] {
+  background-image: url('../assets/cards/4.svg'), url('../assets/cards/C4.svg');
+}
+#game .card[data-value="4"][data-suit="S"] {
+  background-image: url('../assets/cards/4.svg'), url('../assets/cards/S4.svg');
+}
+#game .card[data-value="5"][data-suit="H"] {
+  background-image: url('../assets/cards/5.svg'), url('../assets/cards/H5.svg');
+}
+#game .card[data-value="5"][data-suit="D"] {
+  background-image: url('../assets/cards/5.svg'), url('../assets/cards/D5.svg');
+}
+#game .card[data-value="5"][data-suit="C"] {
+  background-image: url('../assets/cards/5.svg'), url('../assets/cards/C5.svg');
+}
+#game .card[data-value="5"][data-suit="S"] {
+  background-image: url('../assets/cards/5.svg'), url('../assets/cards/S5.svg');
+}
+#game .card[data-value="6"][data-suit="H"] {
+  background-image: url('../assets/cards/6.svg'), url('../assets/cards/H6.svg');
+}
+#game .card[data-value="6"][data-suit="D"] {
+  background-image: url('../assets/cards/6.svg'), url('../assets/cards/D6.svg');
+}
+#game .card[data-value="6"][data-suit="C"] {
+  background-image: url('../assets/cards/6.svg'), url('../assets/cards/C6.svg');
+}
+#game .card[data-value="6"][data-suit="S"] {
+  background-image: url('../assets/cards/6.svg'), url('../assets/cards/S6.svg');
+}
+#game .card[data-value="7"][data-suit="H"] {
+  background-image: url('../assets/cards/7.svg'), url('../assets/cards/H7.svg');
+}
+#game .card[data-value="7"][data-suit="D"] {
+  background-image: url('../assets/cards/7.svg'), url('../assets/cards/D7.svg');
+}
+#game .card[data-value="7"][data-suit="C"] {
+  background-image: url('../assets/cards/7.svg'), url('../assets/cards/C7.svg');
+}
+#game .card[data-value="7"][data-suit="S"] {
+  background-image: url('../assets/cards/7.svg'), url('../assets/cards/S7.svg');
+}
+#game .card[data-value="8"][data-suit="H"] {
+  background-image: url('../assets/cards/8.svg'), url('../assets/cards/H8.svg');
+}
+#game .card[data-value="8"][data-suit="D"] {
+  background-image: url('../assets/cards/8.svg'), url('../assets/cards/D8.svg');
+}
+#game .card[data-value="8"][data-suit="C"] {
+  background-image: url('../assets/cards/8.svg'), url('../assets/cards/C8.svg');
+}
+#game .card[data-value="8"][data-suit="S"] {
+  background-image: url('../assets/cards/8.svg'), url('../assets/cards/S8.svg');
+}
+#game .card[data-value="9"][data-suit="H"] {
+  background-image: url('../assets/cards/9.svg'), url('../assets/cards/H9.svg');
+}
+#game .card[data-value="9"][data-suit="D"] {
+  background-image: url('../assets/cards/9.svg'), url('../assets/cards/D9.svg');
+}
+#game .card[data-value="9"][data-suit="C"] {
+  background-image: url('../assets/cards/9.svg'), url('../assets/cards/C9.svg');
+}
+#game .card[data-value="9"][data-suit="S"] {
+  background-image: url('../assets/cards/9.svg'), url('../assets/cards/S9.svg');
+}
+#game .card[data-value="10"][data-suit="H"] {
+  background-image: url('../assets/cards/10.svg'), url('../assets/cards/H10.svg');
+}
+#game .card[data-value="10"][data-suit="D"] {
+  background-image: url('../assets/cards/10.svg'), url('../assets/cards/D10.svg');
+}
+#game .card[data-value="10"][data-suit="C"] {
+  background-image: url('../assets/cards/10.svg'), url('../assets/cards/C10.svg');
+}
+#game .card[data-value="10"][data-suit="S"] {
+  background-image: url('../assets/cards/10.svg'), url('../assets/cards/S10.svg');
+}
+#game .card[data-value="J"][data-suit="H"] {
+  background-image: url('../assets/cards/J.svg'), url('../assets/cards/HJ.svg');
+}
+#game .card[data-value="J"][data-suit="D"] {
+  background-image: url('../assets/cards/J.svg'), url('../assets/cards/DJ.svg');
+}
+#game .card[data-value="J"][data-suit="C"] {
+  background-image: url('../assets/cards/J.svg'), url('../assets/cards/CJ.svg');
+}
+#game .card[data-value="J"][data-suit="S"] {
+  background-image: url('../assets/cards/J.svg'), url('../assets/cards/SJ.svg');
+}
+#game .card[data-value="Q"][data-suit="H"] {
+  background-image: url('../assets/cards/Q.svg'), url('../assets/cards/HQ.svg');
+}
+#game .card[data-value="Q"][data-suit="D"] {
+  background-image: url('../assets/cards/Q.svg'), url('../assets/cards/DQ.svg');
+}
+#game .card[data-value="Q"][data-suit="C"] {
+  background-image: url('../assets/cards/Q.svg'), url('../assets/cards/CQ.svg');
+}
+#game .card[data-value="Q"][data-suit="S"] {
+  background-image: url('../assets/cards/Q.svg'), url('../assets/cards/SQ.svg');
+}
+#game .card[data-value="K"][data-suit="H"] {
+  background-image: url('../assets/cards/K.svg'), url('../assets/cards/HK.svg');
+}
+#game .card[data-value="K"][data-suit="D"] {
+  background-image: url('../assets/cards/K.svg'), url('../assets/cards/DK.svg');
+}
+#game .card[data-value="K"][data-suit="C"] {
+  background-image: url('../assets/cards/K.svg'), url('../assets/cards/CK.svg');
+}
+#game .card[data-value="K"][data-suit="S"] {
+  background-image: url('../assets/cards/K.svg'), url('../assets/cards/SK.svg');
+}
+#game .card[data-value="A"][data-suit="H"] {
+  background-image: url('../assets/cards/A.svg'), url('../assets/cards/HA.svg');
+}
+#game .card[data-value="A"][data-suit="D"] {
+  background-image: url('../assets/cards/A.svg'), url('../assets/cards/DA.svg');
+}
+#game .card[data-value="A"][data-suit="C"] {
+  background-image: url('../assets/cards/A.svg'), url('../assets/cards/CA.svg');
+}
+#game .card[data-value="A"][data-suit="S"] {
+  background-image: url('../assets/cards/A.svg'), url('../assets/cards/SA.svg');
 }

@@ -13,7 +13,7 @@ class LobbyServer extends Server {
         this.setKey('players', []);
         this.setKey('cardStyle', 'default');
         this.setKey('chat', ' ');
-        this.setKey('host', steam.playerAccountId);
+        this.setKey('host', yukine.playerAccountId);
         this.setKey('state', Yukine.lobbyState.WAITING);
 
         this.subscribe((accountId, key, value) => {

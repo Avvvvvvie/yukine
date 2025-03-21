@@ -1,0 +1,159 @@
+@cardValues: 2, 3, 4, 5, 6, 7, 8, 9, 10, 'J', 'Q', 'K', 'A';
+@cardSuits: 'H', 'D', 'C', 'S';
+@cardAmounts: range(1, 3);
+@states: 'TOTALWIN', 'TOTALLOOSE', 'LOOSE', 'WIN', 'SWAP';
+
+#game {
+  --card-height: 5rem;
+  > .content {
+    margin-left: 1.3rem;
+  }
+  .card {
+    border-radius: 5px;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    font-size: 20px;
+    font-weight: bold;
+    color: #333;
+    cursor: pointer;
+    width: calc(var(--card-height)* 0.7723);
+    height: var(--card-height);
+    background-size: contain;
+    background-repeat: no-repeat;
+    transition: background-color 0.3s
+  }
+  #gameInfo {
+    min-height: 1.15rem;
+  }
+  #playerHand {
+    & .card {
+      transition: background-color 0.3s, transform 0.1s;
+      &:hover {
+        transform: scale(1.2);
+      }
+    }
+  }
+  .playerInfo {
+    display: flex;
+    flex-direction: row;
+    flex-wrap: wrap;
+    position: relative;
+    padding: 0 0.5rem;
+    align-items: center;
+    height: fit-content;
+    &[data-self="true"] .cancelTry {
+      display: none;
+    }
+    &[data-canceled="true"] .cancelTry {
+      color: var(--text-disabled-color);
+      pointer-events: none;
+    }
+    &[data-canceled="true"] .try {
+      color: orange;
+    }
+  }
+  .playerName {
+    width: 100%;
+    position: relative;
+  }
+  .handAmount {
+    margin-top: 0.5rem;
+    width: 1.5rem;
+    height: 1.5rem;
+    background-position: bottom left;
+    background-size: contain;
+    background-repeat: no-repeat;
+    each(@cardAmounts, .(@amount) {
+      &[data-amount="@{amount}"] {
+        background-image: url('../assets/icons/pile@{amount}.svg');
+      }
+    });
+    &[data-amount="0"] {
+      display: none;
+    }
+  }
+  .try {
+    width: 1.5rem;
+    height: 1.5rem;
+    color: var(--text-disabled-color);
+    font-size: 1.3rem;
+    text-align: center;
+    margin-top: 0.5rem;
+    &[data-used="true"] {
+      color: var(--text-color);
+    }
+    &[data-try]::after {
+      width: 100%;
+      height: 100%;
+      display: block;
+      top: 0;
+      left: 0;
+    }
+    &[data-try="Yukine"]::after {
+      content: "Y";
+    }
+    &[data-try="Yato"]::after {
+      content: "Y";
+    }
+    &[data-try="Hiyori"]::after {
+      content: "Y";
+    }
+  }
+  .playerState {
+    background-position: bottom left;
+    background-size: contain;
+    background-repeat: no-repeat;
+    width: 1.5rem;
+    height: 1.5rem;
+    margin-top: 0.5rem;
+  }
+
+  .cancelTry {
+    margin-top: 0.5rem;
+    width: 1.5rem;
+    height: 1.5rem;
+    cursor: pointer;
+    text-align: center;
+    &::after {
+      content: "X";
+      font-size: 1.3rem;
+    }
+  }
+  #playerList {
+    display: grid;
+    grid-template-columns: 1.2fr 4fr;
+    margin: 1.5rem -0.5rem 1.5rem -0.5rem;
+    grid-auto-rows: var(--card-height);
+    grid-gap: 0.5rem;
+  }
+
+  [data-turn="true"]::after {
+    content: "⭐";
+    position: absolute;
+    top: -0.2rem;
+    left: -1.3rem;
+    font-size: 1.3rem;
+    color: gold;
+  }
+
+  [data-eligible="true"] {
+    background-color: #ffd630;
+  }
+
+  each(@states, .(@state) {
+    &[data-state="@{state}"] {
+      background-image: url("../assets/icons/@{state}.svg");
+    }
+  });
+
+  each(@cardValues, .(@value) {
+    each(@cardSuits, .(@suit) {
+      .card[data-value="@{value}"][data-suit="@{suit}"] {
+        background-image: url('../assets/cards/@{value}.svg'), url('../assets/cards/@{suit}@{value}.svg');
+      }
+    });
+  });
+
+}
+

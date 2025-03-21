@@ -1,15 +1,9 @@
 
-const steam = new Steam();
+const yukine = new Yukine();
 const pages = new Pages();
-const menuView = new MenuView();
-const lobbyView = new LobbyView();
-const gameView = new GameView();
 
 document.addEventListener('DOMContentLoaded', function() {
     pages.DOMContentLoaded();
-    menuView.DOMContentLoaded();
-    lobbyView.DOMContentLoaded();
-
 
     // select
     // Iterate over each select element

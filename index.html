@@ -15,18 +15,19 @@
         <script src="./scripts/game/Server.js"></script>
         <script src="./scripts/game/LobbyClient.js"></script>
         <script src="./scripts/game/LobbyServer.js"></script>
-        <script src="./scripts/game/Steam.js"></script>
+        <script src="./scripts/game/Yukine.js"></script>
         <script src="./scripts/game/Card.js"></script>
         <script src="./scripts/game/Pile.js"></script>
         <script src="./scripts/game/PlayerClient.js"></script>
         <script src="./scripts/game/PlayerServer.js"></script>
         <script src="./scripts/game/SteamPlayerClient.js"></script>
-        <script src="./scripts/game/Yukine.js"></script>
         <script src="./scripts/game/YukineClient.js"></script>
         <script src="./scripts/game/YukineServer.js"></script>
+        <script src="./scripts/views/View.js"></script>
         <script src="./scripts/views/MenuView.js"></script>
         <script src="./scripts/views/LobbyView.js"></script>
         <script src="./scripts/views/GameView.js"></script>
+        <script src="./scripts/views/TutorialView.js"></script>
         <script src="./scripts/game/BotPlayerClient.js"></script>
         <script src="./scripts/game/BotYukineClient.js"></script>
         <script src="./scripts/game/SteamYukineClient.js"></script>
@@ -50,9 +51,16 @@
                         </div>
                         <button id="joinLobby" class="c1">join lobby</button>
                         <button id="createLobby" class="c3">create lobby</button>
+                        <button id="showTutorial" class="c3">tutorial</button>
                     </div>
                 </div>
                 <div></div>
+            </div>
+            <div id="tutorial" class="page">
+                <div class="content">
+                    <h1>Tutorial</h1>
+                    <button id="backToMenu" class="c2">back</button>
+                </div>
             </div>
             <div id="lobby" class="page">
                 <div class="content">

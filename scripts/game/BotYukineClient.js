@@ -21,7 +21,7 @@ class BotYukineClient extends YukineClient {
     }
 
     initPlayers() {
-        this.players = steam.lobbyClient.getPlayers().value.map(player => new BotPlayerClient(this.lobby, this.playerAccountId, player.accountId));
+        this.players = yukine.lobbyClient.getPlayers().value.map(player => new BotPlayerClient(this.lobby, this.playerAccountId, player.accountId));
         this.findGamePlayer();
     }
 
