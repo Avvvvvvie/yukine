@@ -10,8 +10,8 @@
   font-weight: bold;
   color: #333;
   cursor: pointer;
-  width: calc(var(5rem)*0.7723);
-  height: var(5rem);
+  width: calc(5rem*0.7723);
+  height: 5rem;
   background-size: contain;
   background-repeat: no-repeat;
   transition: background-color 0.3s;
@@ -103,6 +103,21 @@
   height: 1.5rem;
   margin-top: 0.5rem;
 }
+#game .playerState[data-state="TOTALWIN"] {
+  background-image: url("../assets/icons/TOTALWIN.svg");
+}
+#game .playerState[data-state="TOTALLOOSE"] {
+  background-image: url("../assets/icons/TOTALLOOSE.svg");
+}
+#game .playerState[data-state="LOOSE"] {
+  background-image: url("../assets/icons/LOOSE.svg");
+}
+#game .playerState[data-state="WIN"] {
+  background-image: url("../assets/icons/WIN.svg");
+}
+#game .playerState[data-state="SWAP"] {
+  background-image: url("../assets/icons/SWAP.svg");
+}
 #game .cancelTry {
   margin-top: 0.5rem;
   width: 1.5rem;
@@ -118,7 +133,7 @@
   display: grid;
   grid-template-columns: 1.2fr 4fr;
   margin: 1.5rem -0.5rem 1.5rem -0.5rem;
-  grid-auto-rows: var(5rem);
+  grid-auto-rows: 5rem;
   grid-gap: 0.5rem;
 }
 #game [data-turn="true"]::after {
@@ -131,21 +146,6 @@
 }
 #game [data-eligible="true"] {
   background-color: #ffd630;
-}
-#game[data-state="TOTALWIN"] {
-  background-image: url("../assets/icons/TOTALWIN.svg");
-}
-#game[data-state="TOTALLOOSE"] {
-  background-image: url("../assets/icons/TOTALLOOSE.svg");
-}
-#game[data-state="LOOSE"] {
-  background-image: url("../assets/icons/LOOSE.svg");
-}
-#game[data-state="WIN"] {
-  background-image: url("../assets/icons/WIN.svg");
-}
-#game[data-state="SWAP"] {
-  background-image: url("../assets/icons/SWAP.svg");
 }
 #game .card[data-value="2"][data-suit="H"] {
   background-image: url('../assets/cards/2.svg'), url('../assets/cards/H2.svg');

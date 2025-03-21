@@ -17,8 +17,8 @@
     font-weight: bold;
     color: #333;
     cursor: pointer;
-    width: calc(var(@card-height)* 0.7723);
-    height: var(@card-height);
+    width: calc(@card-height* 0.7723);
+    height: @card-height;
     background-size: contain;
     background-repeat: no-repeat;
     transition: background-color 0.3s
@@ -107,6 +107,11 @@
     width: 1.5rem;
     height: 1.5rem;
     margin-top: 0.5rem;
+    each(@states, .(@state) {
+      &[data-state="@{state}"] {
+        background-image: url("../assets/icons/@{state}.svg");
+      }
+    });
   }
 
   .cancelTry {
@@ -124,7 +129,7 @@
     display: grid;
     grid-template-columns: 1.2fr 4fr;
     margin: 1.5rem -0.5rem 1.5rem -0.5rem;
-    grid-auto-rows: var(@card-height);
+    grid-auto-rows: @card-height;
     grid-gap: 0.5rem;
   }
 
@@ -140,12 +145,6 @@
   [data-eligible="true"] {
     background-color: #ffd630;
   }
-
-  each(@states, .(@state) {
-    &[data-state="@{state}"] {
-      background-image: url("../assets/icons/@{state}.svg");
-    }
-  });
 
   each(@cardValues, .(@value) {
     each(@cardSuits, .(@suit) {

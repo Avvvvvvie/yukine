@@ -123,8 +123,8 @@ class GameView extends View {
             container.innerHTML = '';
             for(let card of pile.value.cards) {
                 let cardElement = createDiv('card', yukine.lobbyClient.cardStyle.value);
-                cardElement.setAttribute('data-value', card.value);
-                cardElement.setAttribute('data-suit', card.suit);
+                cardElement.setAttribute('data-value', card.valueStringShort);
+                cardElement.setAttribute('data-suit', card.suitStringShort);
                 //cardElement.innerText = card.valueString + ' ' + card.suitString;
                 if(onClick) cardElement.addEventListener('click', () => {
                     onClick(card);
