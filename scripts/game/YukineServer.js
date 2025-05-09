@@ -224,9 +224,9 @@ class YukineServer extends Server {
         });
 
         if(sortedPlayerCards[0] === 2) {
-            let duplicates = 0;
-            for(let currentPlayer = 1; currentPlayer <= sortedPlayerCards.length - 3; currentPlayer++) {
-                if(sortedPlayerCards[currentPlayer] === 14) {
+            let duplicates = -1;
+            for(let currentCard = 1; currentCard <= sortedPlayerCards.length - 3; currentCard++) {
+                if(sortedPlayerCards[currentCard] === 14) {
                     duplicates++;
                 }
             }
