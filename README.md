@@ -4,7 +4,7 @@ host or join a game of yukine via code
 
 # nodejs
 
-to run the game outise of steam, you need node and npm
+to run the game outside of steam, you need node and npm
 
 node v18.15.0
 
