@@ -1,6 +1,6 @@
 # yukine
 
-host or join a game of yukine via code
+this is a wip card game that uses the steam api. the game is hosted by one player and then joined via code
 
 # nodejs
 
